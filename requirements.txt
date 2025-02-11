@@ -1,6 +1,7 @@
 arrow==1.2.2
 asttokens==2.0.5
 beautifulsoup4==4.11.1
+lxml
 blinker==1.4
 Bootstrap-Flask==1.8.0
 certifi==2021.10.8
