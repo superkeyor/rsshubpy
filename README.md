@@ -6,7 +6,7 @@ cd RSSHub-python
 
 # test locally
 # pip3 install -r requirements.txt
-brew install pipenv
+sudo apt install pipenv
 pipenv install --dev
 pipenv shell
 pip install lxml
