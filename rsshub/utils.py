@@ -44,6 +44,17 @@ async def fetch_by_puppeteer(url):
         await browser.close()  # 关闭浏览器
         return Selector(text=html)
 
+def escape_html(html_content):
+    """
+    Escape unescaped HTML tags while preserving already escaped characters.
+    """
+    import html
+    html_content = str(html_content)
+    # Regex to match unescaped HTML tags
+    pattern = re.compile(r"(?<!&lt;)(<[^>]+>)(?!&gt;)")
+    # Replace unescaped tags with their escaped versions
+    escaped_content = pattern.sub(lambda match: html.escape(match.group(0)), html_content)
+    return escaped_content
 
 def filter_content(items):
     content = []
