@@ -6,10 +6,11 @@ cd RSSHub-python
 
 # test locally
 # pip3 install -r requirements.txt
-sudo apt install pipenv
+brew install pipenv
 pipenv install --dev
 pipenv shell
 pip install lxml
+brew install --cask fluent-reader
 flask run
 
 HUB_USER_NAME="superkeyor"
