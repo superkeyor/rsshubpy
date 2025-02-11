@@ -5,7 +5,10 @@ git clone https://github.com/superkeyor/RSSHub-python.git
 cd RSSHub-python
 
 # test locally
-pip3 install -r requirements.txt
+# pip3 install -r requirements.txt
+brew install pipenv
+pipenv install --dev
+pipenv shell
 flask run
 
 HUB_USER_NAME="superkeyor"
