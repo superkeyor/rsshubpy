@@ -1,3 +1,20 @@
+# Build
+```
+cd ~/Desktop
+git clone https://github.com/superkeyor/RSSHub-python.git
+cd RSSHub-python
+
+# test locally
+pip3 install -r requirements.txt
+flask run
+
+HUB_USER_NAME="superkeyor"
+sudo docker build -t RSSHub-python .
+sudo docker image tag RSSHub-python $HUB_USER_NAME/RSSHub-python:latest
+sudo docker login -u $HUB_USER_NAME
+sudo docker image push $HUB_USER_NAME/RSSHub-python:latest
+```
+
 # RSSHub
 
 > 🍰 万物皆可 RSS
