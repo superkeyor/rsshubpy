@@ -27,6 +27,7 @@ def escape_unescaped_html(html_content):
     """
     Escape unescaped HTML tags while preserving already escaped characters.
     """
+    html_content = str(html_content)
     # Regex to match unescaped HTML tags
     pattern = re.compile(r"(?<!&lt;)(<[^>]+>)(?!&gt;)")
     # Replace unescaped tags with their escaped versions
