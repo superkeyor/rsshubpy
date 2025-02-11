@@ -23,6 +23,16 @@ def parse_news(news):
     
     return item
 
+def escape_unescaped_html(html_content):
+    """
+    Escape unescaped HTML tags while preserving already escaped characters.
+    """
+    # Regex to match unescaped HTML tags
+    pattern = re.compile(r"(?<!&lt;)(<[^>]+>)(?!&gt;)")
+    # Replace unescaped tags with their escaped versions
+    escaped_content = pattern.sub(lambda match: html.escape(match.group(0)), html_content)
+    return escaped_content
+    
 def ctx(lang=''):
     url = f"{domain}/learning-center/trading-investing/weekly-market-update"
     html = fetch(url, headers=DEFAULT_HEADERS).get()
@@ -30,7 +40,7 @@ def ctx(lang=''):
 
     item = {}
     item['title'] = soup.find('h1').text
-    item['content'] = soup.find('div',attrs={'id':'article-template-body'})
+    item['content'] = escape_unescaped_html( soup.find('div',attrs={'id':'article-template-body'}) )
     item['link'] = url
     item['pubDate'] = datetime.strptime(soup.find('div',attrs={'class':'article-teaser-paragraph'}).text.split(':')[1].strip(), "%B %d, %Y")
 
