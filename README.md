@@ -9,6 +9,7 @@ cd RSSHub-python
 brew install pipenv
 pipenv install --dev
 pipenv shell
+pip install lxml
 flask run
 
 HUB_USER_NAME="superkeyor"
