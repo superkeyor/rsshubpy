@@ -1,8 +1,8 @@
 # Build
 ```
 cd ~/Desktop
-git clone https://github.com/superkeyor/RSSHub-python.git
-cd RSSHub-python
+git clone https://github.com/superkeyor/rsshub_python.git
+cd rsshub_python
 
 # test locally
 # pip3 install -r requirements.txt
@@ -14,10 +14,10 @@ brew install --cask fluent-reader
 flask run
 
 HUB_USER_NAME="superkeyor"
-sudo docker build -t RSSHub-python .
-sudo docker image tag RSSHub-python $HUB_USER_NAME/RSSHub-python:latest
+sudo docker build -t rsshub_python .
+sudo docker image tag rsshub_python $HUB_USER_NAME/rsshub_python:latest
 sudo docker login -u $HUB_USER_NAME
-sudo docker image push $HUB_USER_NAME/RSSHub-python:latest
+sudo docker image push $HUB_USER_NAME/rsshub_python:latest
 ```
 
 # RSSHub
