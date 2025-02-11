@@ -34,7 +34,7 @@ def ctx(lang=''):
     item['pubDate'] = datetime.strptime(soup.find('div',attrs={'class':'article-teaser-paragraph'}).text.split(':')[1].strip(), "%B %d, %Y")
 
     return {
-        'title': 'Fidelity Market Weekly',
+        'title': 'Fidelity Weekly',
         'link': url,
         'description': 'Fidelity Market Weekly',
         'author': 'jerry',
