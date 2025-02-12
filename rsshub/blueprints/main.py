@@ -60,6 +60,13 @@ def fidelity_weekly(category=''):
     from rsshub.spiders.fidelity.weekly import ctx
     return render_template('main/atom.xml', **filter_content(ctx(category)))
 
+@bp.route('/tldr/ai')
+def tldr_ai(category=''):
+    from rsshub.spiders.tldr.ai import ctx
+    return render_template('main/atom.xml', **filter_content(ctx(category)))
+
+
+
 
 @bp.route('/cninfo/announcement/<string:stock_id>/<string:category>')
 @bp.route('/cninfo/announcement')
