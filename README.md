@@ -5,18 +5,15 @@ git clone https://github.com/superkeyor/rsshub_python.git
 cd rsshub_python
 
 # test locally
-# pip3 install -r requirements.txt
-brew install pipenv
-pipenv install --dev
-pipenv shell
-pip install lxml
-brew install --cask fluent-reader
+pip3 install -r requirements.txt
 flask run
+# brew install --cask fluent-reader
 
 HUB_USER_NAME="superkeyor"
+sudo docker login -u $HUB_USER_NAME
+# git pull https://github.com/superkeyor/rsshub_python.git
 sudo docker build -t rsshub_python .
 sudo docker image tag rsshub_python $HUB_USER_NAME/rsshub_python:latest
-sudo docker login -u $HUB_USER_NAME
 sudo docker image push $HUB_USER_NAME/rsshub_python:latest
 ```
 
