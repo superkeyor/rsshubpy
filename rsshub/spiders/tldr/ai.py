@@ -52,7 +52,8 @@ def ctx(lang=''):
 
     soup.find('h1').decompose()
     soup.find('h2').decompose()
-    soup.find('h3').decompose()
+    for h in soup.find_all('h3'):
+        h.decompose()
 
     # Remove the specific footer div
     footer_div = soup.find('div', attrs={'data-sentry-component': 'Footer'})
