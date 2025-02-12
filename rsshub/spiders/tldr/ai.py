@@ -51,7 +51,13 @@ def ctx(lang=''):
         pt_px_div.decompose()
 
     # Find the "Headlines & Launches" section
-    headlines_section = soup.find('section', string=lambda text: text and 'Headlines' in text)
+    # Find the <h3> tag containing "Headlines & Launches"
+    headlines_h3 = soup.find('h3', string=lambda text: text and 'Headlines' in text)
+    # Find the parent <section> of the <h3> tag
+    if headlines_h3:
+        headlines_section = headlines_h3.find_parent('section')
+    else:
+        headlines_section = None
     # Delete all <section> elements before the "Headlines & Launches" section
     if headlines_section:
         for section in headlines_section.find_all_previous('section'):
