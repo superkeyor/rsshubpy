@@ -29,7 +29,6 @@ def ctx(lang=''):
     
     item = {}
     item['title'] = soup.find('h2').text
-    # item['description'] = str( soup )
     item['link'] = url
     item['pubDate'] = datetime.strptime(soup.find('h1').text.split(' ')[-1].strip(), "%Y-%m-%d")
     
@@ -50,17 +49,19 @@ def ctx(lang=''):
     if pt_px_div:
         pt_px_div.decompose()
 
-    soup.find('h1').decompose()
-    soup.find('h2').decompose()
-    for h in soup.find_all('h3'):
-        h.decompose()
-
     # Remove the specific footer div
     footer_div = soup.find('div', attrs={'data-sentry-component': 'Footer'})
     if footer_div:
         footer_div.decompose()
 
-    item['description'] = str( soup )
+    # center header
+    for s in soup.find_all('header'):
+    	s['style'] = 'text-align: center !important; display: block !important;'
+    
+    sections = [s for s in soup.find_all('section') if s.text.strip()]
+    content = "\n".join(str(s) for s in sections)
+    
+    item['description'] = content
     
     return {
         'title': 'TLDR AI',
