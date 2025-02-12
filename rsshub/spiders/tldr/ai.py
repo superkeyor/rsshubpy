@@ -29,7 +29,7 @@ def ctx(lang=''):
     
     item = {}
     item['title'] = soup.find('h2').text
-    // item['description'] = str( soup )
+    # item['description'] = str( soup )
     item['link'] = url
     item['pubDate'] = datetime.strptime(soup.find('h1').text.split(' ')[-1].strip(), "%Y-%m-%d")
     
