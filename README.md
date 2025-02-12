@@ -13,14 +13,14 @@ flask run --host=0.0.0.0
 
 HUB_USER_NAME="superkeyor"
 sudo docker login -u $HUB_USER_NAME
-NAME="rsshub_python"
-cat <<"EOF" | sudo tee upload >/dev/null
-  git pull https://github.com/superkeyor/$NAME.git
-  sudo docker build -t $NAME .
-  sudo docker image tag $NAME $HUB_USER_NAME/$NAME:latest
-  sudo docker image push $HUB_USER_NAME/$NAME:latest
+IMAGE_NAME="rsshub_python"
+cat <<EOF | tee upload >/dev/null
+  git pull https://github.com/superkeyor/${IMAGE_NAME}.git
+  sudo docker build -t ${IMAGE_NAME} .
+  sudo docker image tag ${IMAGE_NAME} ${HUB_USER_NAME}/${IMAGE_NAME}:latest
+  sudo docker image push ${HUB_USER_NAME}/${IMAGE_NAME}:latest
 EOF
-sudo chmod +x upload
+chmod +x upload
 ```
 
 # RSSHub
