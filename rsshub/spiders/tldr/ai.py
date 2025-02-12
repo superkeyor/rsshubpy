@@ -71,11 +71,11 @@ def ctx(lang=''):
     content = f'''
     <table width="100%" cellpadding="0" cellspacing="0" border="0">
       <tr>
-        <td width="5%"></td> <!-- Left margin -->
+        <td width="2.5%"></td> <!-- Left margin -->
         <td>
           {content} <!-- Content goes here -->
         </td>
-        <td width="5%"></td> <!-- Right margin -->
+        <td width="2.5%"></td> <!-- Right margin -->
       </tr>
     </table>
     '''
