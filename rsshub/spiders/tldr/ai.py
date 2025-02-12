@@ -39,7 +39,16 @@ def ctx(lang=''):
     for element in margin_elements:
         element.decompose()  # Remove the element from the DOM
 
-
+    # Remove header
+    pt_px_div = soup.find('div', class_='pt-3 px-6')
+    if pt_px_div:
+        pt_px_div.decompose()
+    
+    # Remove the specific footer div
+    footer_div = soup.find('div', attrs={'data-sentry-component': 'Footer'})
+    if footer_div:
+        footer_div.decompose()
+        
     item = {}
     item['title'] = soup.find('h2').text
     item['description'] = str( soup )
