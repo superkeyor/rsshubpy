@@ -1,15 +1,15 @@
 # Build
 ```
+IMAGE_NAME="rsshub_python"
+
 cd ~/Desktop
-git clone https://github.com/superkeyor/rsshub_python.git
-cd rsshub_python
+git clone https://github.com/superkeyor/${IMAGE_NAME}.git
+cd ${IMAGE_NAME}
 
 # test locally
 pip3 install -r requirements.txt
-flask run --host=0.0.0.0
-# ipython # to debug
-# sudo apt install quiterss
-# brew install --cask fluent-reader
+flask run --host=0.0.0.0      # ipython # to debug
+# sudo apt install quiterss   # brew install --cask fluent-reader
 
 HUB_USER_NAME="superkeyor"
 sudo docker login -u $HUB_USER_NAME
