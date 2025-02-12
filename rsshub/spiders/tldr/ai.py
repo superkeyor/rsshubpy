@@ -54,12 +54,31 @@ def ctx(lang=''):
     if footer_div:
         footer_div.decompose()
 
-    # center header
-    for s in soup.find_all('header'):
-    	s['style'] = 'text-align: center !important; display: block !important;'
+    # Center header: freshrss reader could remove css style?
+    # for s in soup.find_all('header'):
+    #     s['style'] = 'text-align: center !important; display: block !important;'
     
+    # Wrap the contents of each <header> with a <center> tag
+    headers = soup.find_all('header')
+    for header in headers:
+        center_tag = soup.new_tag('center')
+        header.wrap(center_tag)
+        
     sections = [s for s in soup.find_all('section') if s.text.strip()]
     content = "\n".join(str(s) for s in sections)
+    
+    # Wrap the content in a table with left and right margins
+    content = f'''
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td width="5%"></td> <!-- Left margin -->
+        <td>
+          {content} <!-- Content goes here -->
+        </td>
+        <td width="5%"></td> <!-- Right margin -->
+      </tr>
+    </table>
+    '''
     
     item['description'] = content
     
