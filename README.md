@@ -6,7 +6,7 @@ cd rsshub_python
 
 # test locally
 pip3 install -r requirements.txt
-flask run
+flask run --host=0.0.0.0
 # brew install --cask fluent-reader
 
 HUB_USER_NAME="superkeyor"
