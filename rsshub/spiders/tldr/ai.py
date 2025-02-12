@@ -26,7 +26,13 @@ def ctx(lang=''):
     url = f"{domain}/api/latest/ai"
     html = fetch(url, headers=DEFAULT_HEADERS).get()
     soup = BeautifulSoup(html, 'html.parser')
-
+    
+    item = {}
+    item['title'] = soup.find('h2').text
+    // item['description'] = str( soup )
+    item['link'] = url
+    item['pubDate'] = datetime.strptime(soup.find('h1').text.split(' ')[-1].strip(), "%Y-%m-%d")
+    
     # Remove sponsored articles
     articles = soup.find_all('article')
     for article in articles:
@@ -43,18 +49,22 @@ def ctx(lang=''):
     pt_px_div = soup.find('div', class_='pt-3 px-6')
     if pt_px_div:
         pt_px_div.decompose()
+
+    soup.find('h1').decompose()
+    soup.find('h2').decompose()
     
     # Remove the specific footer div
     footer_div = soup.find('div', attrs={'data-sentry-component': 'Footer'})
     if footer_div:
         footer_div.decompose()
-        
-    item = {}
-    item['title'] = soup.find('h2').text
-    item['description'] = str( soup )
-    item['link'] = url
-    item['pubDate'] = datetime.strptime(soup.find('h1').text.split(' ')[-1].strip(), "%Y-%m-%d")
 
+    # Center all <header> tags
+    headers = soup.find_all('header')
+    for header in headers:
+        header['style'] = 'text-align: center;'  # Add inline CSS to center the text
+        
+    item['description'] = str( soup )
+    
     return {
         'title': 'TLDR AI',
         'link': url,
