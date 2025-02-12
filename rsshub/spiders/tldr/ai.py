@@ -50,19 +50,10 @@ def ctx(lang=''):
     if pt_px_div:
         pt_px_div.decompose()
 
-    # Find the "Headlines & Launches" section
-    # Find the <h3> tag containing "Headlines & Launches"
-    headlines_h3 = soup.find('h3', string=lambda text: text and 'Headlines' in text)
-    # Find the parent <section> of the <h3> tag
-    if headlines_h3:
-        headlines_section = headlines_h3.find_parent('section')
-    else:
-        headlines_section = None
-    # Delete all <section> elements before the "Headlines & Launches" section
-    if headlines_section:
-        for section in headlines_section.find_all_previous('section'):
-            section.decompose()
-    
+    soup.find('h1').decompose()
+    soup.find('h2').decompose()
+    soup.find('h3').decompose()
+
     # Remove the specific footer div
     footer_div = soup.find('div', attrs={'data-sentry-component': 'Footer'})
     if footer_div:
