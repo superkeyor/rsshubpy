@@ -52,22 +52,14 @@ def ctx(lang=''):
 
     soup.find('h1').decompose()
     soup.find('h2').decompose()
-    soup.find('h3').decompose()
+    [h['style'] = 'text-align: center !important; display: block !important;' for h in soup.find_all(class_="text-center text-3xl mt-3")]
+    [h['style'] = 'text-align: center !important; display: block !important;' for h in soup.find_all('h3')]
+    # soup.find('h3').decompose()
 
     # Remove the specific footer div
     footer_div = soup.find('div', attrs={'data-sentry-component': 'Footer'})
     if footer_div:
         footer_div.decompose()
-
-    # Center the next two children of <header> (the <div> and <h3>)
-    if headlines_section:
-        header = headlines_section.find('header')
-        if header:
-            # Get the first two children of <header>
-            children = list(header.children)
-            for child in children[:2]:  # Only process the first two children
-                if child.name:  # Ensure it's a valid tag (not a string or None)
-                    child['style'] = 'text-align: center; display: block;'  # Center the element
 
     item['description'] = str( soup )
     
