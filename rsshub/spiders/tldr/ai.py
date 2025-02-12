@@ -50,19 +50,28 @@ def ctx(lang=''):
     if pt_px_div:
         pt_px_div.decompose()
 
-    soup.find('h1').decompose()
-    soup.find('h2').decompose()
+    # Find the "Headlines & Launches" section
+    headlines_section = soup.find('section', string=lambda text: text and 'Headlines' in text)
+    # Delete all <section> elements before the "Headlines & Launches" section
+    if headlines_section:
+        for section in headlines_section.find_all_previous('section'):
+            section.decompose()
     
     # Remove the specific footer div
     footer_div = soup.find('div', attrs={'data-sentry-component': 'Footer'})
     if footer_div:
         footer_div.decompose()
 
-    # Center all <header> tags
-    headers = soup.find_all('header')
-    for header in headers:
-        header['style'] = 'text-align: center;'  # Add inline CSS to center the text
-        
+    # Center the next two children of <header> (the <div> and <h3>)
+    if headlines_section:
+        header = headlines_section.find('header')
+        if header:
+            # Get the first two children of <header>
+            children = list(header.children)
+            for child in children[:2]:  # Only process the first two children
+                if child.name:  # Ensure it's a valid tag (not a string or None)
+                    child['style'] = 'text-align: center; display: block;'  # Center the element
+
     item['description'] = str( soup )
     
     return {
