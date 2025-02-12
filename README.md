@@ -7,6 +7,7 @@ cd rsshub_python
 # test locally
 pip3 install -r requirements.txt
 flask run --host=0.0.0.0
+# sudo apt install quiterss
 # brew install --cask fluent-reader
 
 HUB_USER_NAME="superkeyor"
