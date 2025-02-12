@@ -52,8 +52,10 @@ def ctx(lang=''):
 
     soup.find('h1').decompose()
     soup.find('h2').decompose()
-    [h['style'] = 'text-align: center !important; display: block !important;' for h in soup.find_all(class_="text-center text-3xl mt-3")]
-    [h['style'] = 'text-align: center !important; display: block !important;' for h in soup.find_all('h3')]
+    for h in soup.find_all(class_="text-center text-3xl mt-3"): 
+        h['style'] = 'text-align: center !important; display: block !important;'
+    for h in soup.find_all('h3'):
+        h['style'] = 'text-align: center !important; display: block !important;'
     # soup.find('h3').decompose()
 
     # Remove the specific footer div
