@@ -29,7 +29,7 @@ def ctx(lang=''):
 
     item = {}
     item['title'] = soup.find('h1').text
-    item['content'] = str( soup.find('div',attrs={'id':'article-template-body'}) )
+    item['description'] = str( soup.find('div',attrs={'id':'article-template-body'}) )
     item['link'] = url
     item['pubDate'] = datetime.strptime(soup.find('div',attrs={'class':'article-teaser-paragraph'}).text.split(':')[1].strip(), "%B %d, %Y")
 
