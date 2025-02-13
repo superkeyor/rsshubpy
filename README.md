@@ -3,7 +3,7 @@
 IMAGE_NAME="rsshub_python"
 
 cd ~/Desktop/Downloads
-git clone https://github.com/superkeyor/${IMAGE_NAME}.git
+git clone git@github.com:/superkeyor/${IMAGE_NAME}.git
 cd ${IMAGE_NAME}
 
 # test locally
@@ -20,13 +20,12 @@ csd="\$( cd "\$( dirname "\${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "\$csd"
 
 git config --global --add safe.directory .
-
 # git reset --hard   # discard local changes
-# git pull https://github.com/superkeyor/${IMAGE_NAME}.git
+# git pull git@github.com:/superkeyor/${IMAGE_NAME}.git
 
 git add -A 
 git commit -m 'update'
-git push https://github.com/superkeyor/${IMAGE_NAME}.git
+git push git@github.com:/superkeyor/${IMAGE_NAME}.git
 
 if [[ $(command -v docker) != "" ]]; then
 sudo docker build -t ${IMAGE_NAME} .
