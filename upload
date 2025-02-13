@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+csd="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cd "$csd"
+
+# git config --global --add safe.directory .
+# git reset --hard   # discard local changes
+# git pull git@github.com:/superkeyor/rsshub_python.git
+
+git add -A 
+git commit -m 'update'
+git push git@github.com:/superkeyor/rsshub_python.git
+
+if [[ /usr/bin/docker != "" ]]; then
+sudo docker build -t rsshub_python .
+sudo docker image tag rsshub_python superkeyor/rsshub_python:latest
+sudo docker image push superkeyor/rsshub_python:latest
+fi

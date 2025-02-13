@@ -12,6 +12,8 @@ flask run --host=0.0.0.0    # ipython # to debug
 sudo apt install quiterss   # brew install --cask fluent-reader
 
 cp ~/Desktop/Dropbox/Apps/Git/config/.ssh/id_ed25519 ~/.ssh/id_ed25519
+cp ~/Desktop/Dropbox/Apps/Git/config/.gitconfig ~/.gitconfig
+
 HUB_USER_NAME="superkeyor"
 sudo docker login -u $HUB_USER_NAME
 IMAGE_NAME=$(basename $(pwd))
@@ -104,3 +106,4 @@ gunicorn main:app -b 0.0.0.0:5000
 ## Requirements
 
 - Python 3.8
+
