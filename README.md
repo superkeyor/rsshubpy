@@ -3,7 +3,6 @@
 ####### global settings
 IMAGE_NAME="rsshub_python"
 
-
 ####### git clone
 cd ~/Desktop
 git clone git@github.com:/superkeyor/${IMAGE_NAME}.git
