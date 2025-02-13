@@ -1,22 +1,26 @@
 # Build
 ```
+####### global settings
 IMAGE_NAME="rsshub_python"
 
+
+####### git clone
 cd ~/Desktop
 git clone git@github.com:/superkeyor/${IMAGE_NAME}.git
 cd ${IMAGE_NAME}
-
-# test locally
-pip3 install -r requirements.txt
-flask run --host=0.0.0.0    # ipython # to debug
-sudo apt install quiterss   # brew install --cask fluent-reader
-
 cp ~/Desktop/Dropbox/Apps/Git/config/.ssh/id_ed25519 ~/.ssh/id_ed25519
 cp ~/Desktop/Dropbox/Apps/Git/config/.gitconfig ~/.gitconfig
 
-HUB_USER_NAME="superkeyor"
-sudo docker login -u $HUB_USER_NAME
+####### test locally
+pip3 install -r requirements.txt
+sudo apt install quiterss   # brew install --cask fluent-reader
+flask run --host=0.0.0.0    # ipython # to debug
+
+####### docker hub
 IMAGE_NAME=$(basename $(pwd))
+sudo docker login -u superkeyor
+
+####### upload to github and dockerhub
 cat <<EOF | tee upload >/dev/null
 #!/usr/bin/env bash
 csd="\$( cd "\$( dirname "\${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -32,11 +36,11 @@ git push git@github.com:/superkeyor/${IMAGE_NAME}.git
 
 if [[ $(command -v docker) != "" ]]; then
 sudo docker build -t ${IMAGE_NAME} .
-sudo docker image tag ${IMAGE_NAME} ${HUB_USER_NAME}/${IMAGE_NAME}:latest
-sudo docker image push ${HUB_USER_NAME}/${IMAGE_NAME}:latest
+sudo docker image tag ${IMAGE_NAME} superkeyor/${IMAGE_NAME}:latest
+sudo docker image push superkeyor/${IMAGE_NAME}:latest
 fi
 EOF
-chmod +x upload
+chmod +x upload   # ./upload
 ```
 
 # RSSHub
