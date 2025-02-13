@@ -19,7 +19,7 @@ cat <<EOF | tee upload >/dev/null
 csd="\$( cd "\$( dirname "\${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "\$csd"
 
-# git config --global --add safe.directory .
+git config --global --add safe.directory .
 
 # git reset --hard   # discard local changes
 # git pull https://github.com/superkeyor/${IMAGE_NAME}.git
