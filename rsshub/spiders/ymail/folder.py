@@ -39,7 +39,8 @@ def parse(post):
         content = content.replace('Links in this table will link to details below.','')
         content = content.replace('This table reflects only Equities in your watch list(s) and account(s).','')
         content = content.replace('All data on these chart(s) provided by third parties','')
-        content = content.replace('<td align="middle" class="SmallestDataHeader" rowspan="2" width="8%">Currency', '<td align="middle" class="SmallestDataHeader" rowspan="2" width="0%">Currency')
+        content = content.replace('<td align="middle" class="SmallestDataHeader" rowspan="2" width="8%">Currency\n</td>', '')
+        content = content.replace('<td align="center" class="SmallData" valign="top">USD</td>\n', '')
         content = re.sub('bgcolor="[#]?.{6}"','',content)
         
         item['description'] = content
