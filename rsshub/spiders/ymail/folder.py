@@ -27,16 +27,19 @@ def parse(post):
         else:
             market = header
         news = soup.find_all('table',attrs={'class':'DataTableBorder'})
+        news2 = soup.find_all('table',attrs={'class':'DatTableBorder'})  # if subscribe news separately, fidelity gives this
         
         content.append(extract_html(market))
         content.append('<hr>')
         content.append(extract_html(news))
+        content.append(extract_html(news2))
         content = ''.join(content)
-        content = content.replace('border="1"','border="1" !important')
+        # content = content.replace('border="1"','border="1" !important')
         content = content.replace('<a class="SmallText" href="https://yahoo.com/#t">Top</a>','')
         content = content.replace('Links in this table will link to details below.','')
         content = content.replace('This table reflects only Equities in your watch list(s) and account(s).','')
         content = content.replace('All data on these chart(s) provided by third parties','')
+        content = content.replace('<td align="middle" class="SmallestDataHeader" rowspan="2" width="8%">Currency', '<td align="middle" class="SmallestDataHeader" rowspan="2" width="0%">Currency')
         content = re.sub('bgcolor="[#]?.{6}"','',content)
         
         item['description'] = content
@@ -70,6 +73,6 @@ def ctx(category=''):
         'title': title,
         'link': link,
         'description': description,
-        'author': author,
+        'author': 'Jerry',
         'items': list(map(parse, posts)) 
     }  

@@ -19,7 +19,7 @@ cat <<EOF | tee run >/dev/null
 #!/usr/bin/env bash
 csd="\$( cd "\$( dirname "\${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "\$csd"
-flask run --host=0.0.0.0    # ipython # to debug
+flask run --host=0.0.0.0 --port=1201   # ipython # to debug
 EOF
 chmod +x run
 
