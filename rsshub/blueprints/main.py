@@ -65,6 +65,11 @@ def tldr_ai(category=''):
     from rsshub.spiders.tldr.ai import ctx
     return render_template('main/atom.xml', **filter_content(ctx(category)))
 
+@bp.route('/ymail/<string:category>')
+def ymail_folder(category=''):
+    from rsshub.spiders.ymail.folder import ctx
+    return render_template('main/atom.xml', **filter_content(ctx(category)))
+
 
 
 

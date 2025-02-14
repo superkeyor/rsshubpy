@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+csd="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cd "$csd"
+flask run --host=0.0.0.0    # ipython # to debug

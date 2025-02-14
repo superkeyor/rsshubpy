@@ -2,6 +2,7 @@ import re
 from flask import Response
 import requests
 from parsel import Selector
+import bs4
 
 DEFAULT_HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'}
 
@@ -43,6 +44,18 @@ async def fetch_by_puppeteer(url):
         html = await page.content()  # 获取页面内容
         await browser.close()  # 关闭浏览器
         return Selector(text=html)
+
+def extract_html(element):
+    """
+    element: a soup find object, or find_all object
+    """
+    if element is None:
+        return ""
+    else:
+        if type(element) in [bs4.element.ResultSet, list]:
+            return ''.join([str(e) for e in element])
+        else:
+            return str(element)
 
 def escape_html(html_content):
     """

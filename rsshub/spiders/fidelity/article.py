@@ -2,8 +2,8 @@ import re
 import json
 import requests
 from datetime import datetime
-from bs4 import BeautifulSoup, NavigableString
-from rsshub.utils import DEFAULT_HEADERS, fetch, fetch_by_puppeteer, escape_html
+from bs4 import BeautifulSoup
+from rsshub.utils import DEFAULT_HEADERS, fetch, fetch_by_puppeteer, extract_html
 
 domain = 'https://www.fidelity.com'
 
@@ -31,7 +31,7 @@ def ctx(category=''):
     url = routes[category]
     
     html = fetch(url, headers=DEFAULT_HEADERS).get()
-    soup = BeautifulSoup(html, 'html.parser')
+    soup = BeautifulSoup(html, 'lxml')
 
     item = {}
     item['title'] = soup.find('h1').text
@@ -39,12 +39,6 @@ def ctx(category=''):
     item['pubDate'] = datetime.strptime(soup.find('div',attrs={'itemprop': 'datePublished'}).text.strip(), "%B %d, %Y")
 
     content = []
-    def extract_html(element):
-        if element is None:
-            return ""
-        else:
-            return str(element) # ''.join(str(c) for c in element.contents if isinstance(c, NavigableString))
-    
     ad = soup.find('div',attrs={'class':'Call-Out-Part'})
     subtitle = soup.find('div', attrs={'class': 'article-teaser-paragraph'})
     author = soup.find('div', attrs={"itemprop": "author"})
