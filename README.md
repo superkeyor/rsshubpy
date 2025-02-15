@@ -4,11 +4,11 @@
 IMAGE_NAME="rsshub_python"
 
 ####### git clone
+cp ~/Desktop/Dropbox/Apps/Git/config/.ssh/id_ed25519 ~/.ssh/id_ed25519
+cp ~/Desktop/Dropbox/Apps/Git/config/.gitconfig ~/.gitconfig
 cd ~/Desktop
 git clone git@github.com:/superkeyor/${IMAGE_NAME}.git
 cd ${IMAGE_NAME}
-cp ~/Desktop/Dropbox/Apps/Git/config/.ssh/id_ed25519 ~/.ssh/id_ed25519
-cp ~/Desktop/Dropbox/Apps/Git/config/.gitconfig ~/.gitconfig
 
 ####### test locally
 pip3 install -r requirements.txt
