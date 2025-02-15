@@ -45,6 +45,18 @@ def parse(post):
         
         item['description'] = content
     
+    # xe currency
+    elif post.author=='"Xe Rate Alerts" <xe@service.xe.com>':
+        html = post.summary
+        soup = BeautifulSoup(html, 'html.parser')
+        
+        title = soup.find_all('h2')[1].text
+        item['title'] = f"Today: {title}"
+        item['description'] = post.summary if hasattr(post,'summary') else post.title
+        item['pubDate'] = post.published if post.has_key('published') else arrow.now().isoformat()
+        item['link'] = ''
+        item['author'] = post.author
+        
     else:
         item['title'] = post.title
         item['description'] = post.summary if hasattr(post,'summary') else post.title
