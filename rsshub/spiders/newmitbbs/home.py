@@ -14,9 +14,15 @@ def parse(post):
     html=fetch(link, headers=DEFAULT_HEADERS).get()
     soup=BeautifulSoup(html, 'lxml')
     contents=soup.find_all('div',class_="content")
+    
+    # "fix" emoji
+    emoji_elements = soup.find_all('img', class_='emoji smilies')
+    for emoji in emoji_elements:
+        if 'src' in emoji.attrs:
+            del emoji['src']
+    
     content=''
     authors=[u.find('span',class_="username").text for u in soup.find_all('div',class_="postbody")]
-    
     for i, a, p in zip(range(len(authors)), authors, contents):
         content += f"#{i+1}: {a} {p}<hr>"
     
