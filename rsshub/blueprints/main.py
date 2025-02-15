@@ -70,6 +70,11 @@ def ymail_folder(category=''):
     from rsshub.spiders.ymail.folder import ctx
     return render_template('main/atom.xml', **filter_content(ctx(category)))
 
+@bp.route('/newmitbbs')
+def newmitbbs_home(category=''):
+    from rsshub.spiders.newmitbbs.home import ctx
+    return render_template('main/atom.xml', **filter_content(ctx(category)))
+
 
 
 
