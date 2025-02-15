@@ -12,7 +12,7 @@ cd ${IMAGE_NAME}
 
 ####### test locally
 pip3 install -r requirements.txt
-sudo apt install quiterss   # brew install --cask fluent-reader
+sudo apt install quiterss -y   # brew install --cask fluent-reader
 
 ####### ./run
 cat <<EOF | tee run >/dev/null
@@ -25,6 +25,7 @@ chmod +x run
 
 ####### docker hub
 IMAGE_NAME=$(basename $(pwd))
+echo "Docker Hub Password (formula): "
 sudo docker login -u superkeyor
 
 ####### upload to github and dockerhub
