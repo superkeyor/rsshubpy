@@ -9,22 +9,6 @@ import arrow
 import feedparser
 
 domain = 'https://www.1point3acres.com/'
-headers = {
-    "Host": "www.1point3acres.com",
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:135.0) Gecko/20100101 Firefox/135.0",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.7,zh-CN;q=0.3",
-    "Accept-Encoding": "gzip, deflate, br, zstd",
-    "Referer": "https://www.1point3acres.com",
-    "DNT": "1",
-    "Sec-GPC": "1",
-    "Connection": "keep-alive",
-    "Upgrade-Insecure-Requests": "1",
-    "Sec-Fetch-Dest": "document",
-    "Sec-Fetch-Mode": "navigate",
-    "Sec-Fetch-Site": "same-origin",
-    "Sec-Fetch-User": "?1"
-}
 
 def ctx(category=''):
     urls=[urljoin(domain,'/bbs/forum.php?mod=guide&view=hot'), urljoin(domain,'/bbs/forum.php?mod=guide&view=digest')]
