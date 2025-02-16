@@ -31,7 +31,7 @@ def ctx(category=''):
     items=[]
     
     for url in urls:
-        html = fetch(url, headers=headers).get()
+        html = fetch(url, headers=DEFAULT_HEADERS).get()
         soup = BeautifulSoup(html, 'lxml')
         
         for tbody in soup.find_all('tbody', attrs={'id':re.compile("normalthread_\d+")}):
@@ -52,7 +52,7 @@ def ctx(category=''):
                     items.append(item)
     
     items = list({tuple(d.items()): d for d in items}.values())  # unique list while preserving order
-    print(items)
+
     return {
         'title': '一亩三分地',
         'link': domain,
