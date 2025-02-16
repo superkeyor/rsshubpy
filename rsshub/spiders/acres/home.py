@@ -52,7 +52,7 @@ def ctx(category=''):
                     items.append(item)
     
     items = list({tuple(d.items()): d for d in items}.values())  # unique list while preserving order
-
+    print(items)
     return {
         'title': '一亩三分地',
         'link': domain,
