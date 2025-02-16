@@ -39,7 +39,7 @@ def ctx(category=''):
 
     return {
         'title': '一亩三分地',
-        'link': domain,
+        'link': 'https://www.1point3acres.com/bbs/forum.php?mod=guide&view=hot&mobile=2',
         'description': '伴你一起成长',
         'author': 'Jerry',
         'items': items
