@@ -9,7 +9,6 @@ import arrow
 import feedparser
 
 domain = 'https://newmitbbs.com'
-session = requests.Session()
 
 def collect_all_pages(start_url, next_button_attrs):
     """
@@ -40,8 +39,10 @@ def collect_all_pages(start_url, next_button_attrs):
 
         next_page_url = next_button["href"]
         # Handle relative URLs (e.g., "/page/2")
-        if next_page_url.startswith("/") or next_page_url.startswith("./"):
+        if not next_page_url.startswith(('http://', 'https://')):
             next_page_url = urljoin(url, next_page_url)
+        else:
+            next_page_url = next_page_url
 
         # Move to the next page
         url = next_page_url

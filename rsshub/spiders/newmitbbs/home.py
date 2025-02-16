@@ -9,7 +9,6 @@ import arrow
 import feedparser
 
 domain = 'https://newmitbbs.com'
-session = requests.Session()
 
 def collect_all_pages(start_url, next_button_attrs):
     """

@@ -75,6 +75,11 @@ def newmitbbs_home(category=''):
     from rsshub.spiders.newmitbbs.home import ctx
     return render_template('main/atom.xml', **filter_content(ctx(category)))
 
+@bp.route('/13')
+def acres_home(category=''):
+    from rsshub.spiders.acres.home import ctx
+    return render_template('main/atom.xml', **filter_content(ctx(category)))
+
 
 
 
