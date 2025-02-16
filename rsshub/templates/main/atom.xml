@@ -4,7 +4,7 @@
     <id>{{link}}</id>
     <title><![CDATA[{{title|safe}}]]></title>
     <subtitle><![CDATA[{{description|safe}}]]></subtitle>
-    <link href="{{link}}" rel="self" />
+    <link href="{{link}}"/>
     <updated>{{now}}</updated>
     <author>
         <name><![CDATA[{{author|safe}}]]></name>
