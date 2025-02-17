@@ -12,7 +12,7 @@
     </author>
     {% for item in items %}
         <entry>
-            <id>{{item.link}}#{{item.pubDate|default(now)|replace(' ', 'T')|replace(':', '')}}</id>
+            <id>{% if item.id %}{{item.id}}{% else %}{{item.link}}#{{item.pubDate|default(now)|replace(' ', 'T')|replace(':', '')}}{% endif %}</id>
             <title><![CDATA[{{item.title|safe}}]]></title>
             <author>
                 <name><![CDATA[{{item.author|safe}}]]></name>
