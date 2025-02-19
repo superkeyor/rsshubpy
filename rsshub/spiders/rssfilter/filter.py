@@ -11,6 +11,7 @@ def parse(post):
     item['pubDate'] = post.published if post.has_key('published') else arrow.now().isoformat()
     item['link'] = post.link if hasattr(post,'link') else ''
     item['author'] = post.author if post.has_key('author') else ''
+    if post.has_key('id'): item['id'] = post.id
     return item
 
 def ctx(feed_url=''):
