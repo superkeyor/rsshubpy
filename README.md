@@ -2,15 +2,17 @@
 ```
 dset rsshub_python
 
-####### test locally
-pip3 install -r requirements.txt
-sudo apt install quiterss -y   # brew install --cask fluent-reader
-
 ####### ./run
 cat <<EOF | tee run >/dev/null
 #!/usr/bin/env bash
 csd="\$( cd "\$( dirname "\${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "\$csd"
+
+if [[ $(command -v flask) == "" ]]; then
+pip3 install -r requirements.txt
+sudo apt install quiterss -y   # brew install --cask fluent-reader
+fi
+
 flask run --host=0.0.0.0 --port=1201   # ipython # to debug
 EOF
 chmod +x run
