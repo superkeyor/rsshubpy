@@ -8,7 +8,7 @@ cat <<EOF | tee run >/dev/null
 csd="\$( cd "\$( dirname "\${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "\$csd"
 
-if [[ $(command -v flask) == "" ]]; then
+if [[ $(command -v quiterss) == "" ]]; then
 pip3 install -r requirements.txt
 sudo apt install quiterss -y   # brew install --cask fluent-reader
 fi
