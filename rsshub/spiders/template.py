@@ -1,4 +1,4 @@
-from rsshub.utils import DEFAULT_HEADERS, fetch, fetch_by_puppeteer, extract_html
+from rsshub.utils import DEFAULT_HEADERS, fetch, fetch_by_puppeteer, extract_html, decompose_element
 import requests 
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
@@ -70,6 +70,8 @@ def parse(post):
 
         contents.extend(soup.find_all('div',class_="content"))
         authors.extend([u.find('span',class_="username").text for u in soup.find_all('div',class_="postbody")])
+    
+    soup = decompose_element(soup, 'div',class_="quote")
     
     content=''; op=authors[0]
     for i, a, c in zip(range(len(authors)), authors, contents):

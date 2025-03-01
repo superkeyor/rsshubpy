@@ -69,6 +69,17 @@ def escape_html(html_content):
     escaped_content = pattern.sub(lambda match: html.escape(match.group(0)), html_content)
     return escaped_content
 
+def decompose_element(soup, *args, **kwargs):
+    """
+    all parameters go to soup.find_all()
+    returns new soup
+    """
+    elements=soup.find_all(*args, **kwargs)
+    if len(elements)>0: 
+        for e in elements:
+            e.decompose()
+    return soup
+
 def filter_content(items):
     content = []
     p1 = re.compile(r'(.*)(to|will|date|schedule) (.*)results', re.IGNORECASE)
