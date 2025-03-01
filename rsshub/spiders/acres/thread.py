@@ -41,7 +41,8 @@ def collect_all_pages(start_url, next_button_attrs):
     url = start_url
     p=1
     while url:
-        session.headers.update(headers)
+        # session.headers.update(headers)
+        session.headers.update(DEFAULT_HEADERS)
         response = session.get(url)
         if response.status_code != 200:
             print(f"Failed to retrieve page: {url}")
