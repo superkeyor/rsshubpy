@@ -67,7 +67,7 @@ def collect_all_pages(start_url, next_button_attrs):
         url = next_page_url
 
         # Optional: Add a delay to avoid overwhelming the server
-        time.sleep(5)  # Sleep for 1 second between requests
+        time.sleep(5)  # Sleep for seconds between requests
         
         p+=1
         if p>1: break
