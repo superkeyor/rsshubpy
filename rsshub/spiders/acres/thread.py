@@ -135,7 +135,7 @@ def parse(post):
             content += f"#{i+1}: <i>{a} (op)</i> {reaction} <br>{c}<br><br>"
         else:
             content += f"#{i+1}: <i>{a}</i> {reaction} <br>{c}<br><br>"
-    content += f'<a href="{link.replace("-1-1.","-2-1.")}" target="_blank">阅读原文</a>'
+    content += f'<div align="right"><a href="{link.replace("-1-1.","-2-1.")}" target="_blank">下一页 原文</a></div>'
     
     item = {}
     item['title']=post.text
