@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 5000
 
 # 启动应用程序
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "main:app"]
+CMD ["gunicorn", "--timeout", "600", "-b", "0.0.0.0:5000", "main:app"]
