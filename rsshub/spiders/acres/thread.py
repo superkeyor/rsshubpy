@@ -117,6 +117,7 @@ def parse(post):
         soup = decompose_element(soup, 'font',class_="jammer")
         soup = decompose_element(soup, 'i',class_="pstatus")
         soup = decompose_element(soup, 'div',style="display:none;")
+        soup = decompose_element(soup, 'span',style="display:none;")
         
         # contents.extend( soup.find_all('td',itemprop="articleBody") )
         contents.extend( soup.select('td[itemprop="articleBody"], div.locked') ) # sometimes locked contents
