@@ -151,7 +151,7 @@ def ctx(category=''):
     posts=[]
     
     for url in urls:
-        html = fetch(url, headers=headers).get()
+        html = fetch(url, headers=DEFAULT_HEADERS).get()
         soup = BeautifulSoup(html, 'lxml')
         
         for th in soup.find_all('th', attrs={'class':'common'}):
