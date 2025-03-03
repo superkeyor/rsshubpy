@@ -83,7 +83,7 @@ def parse(post):
               'link':link,
               'author':'timeout',
               'pubDate':datetime.now(),
-              'description':f'<a href="{link}" target="_blank">阅读原文</a>'}
+              'description':f'<div align="right"><a href="{link}" target="_blank">阅读原文</a></div>'}
         return item
     contents=[]; thumbups=[]; thumbdowns=[]; authors=[]
 
@@ -142,6 +142,7 @@ def parse(post):
     item['link']=link
     item['author']=op
     item['pubDate']=pubDate
+    item['id']=link  # do not add date to the link because date may be incorrect(?) causing rss duplication
     item['description']=content
     
     return item
