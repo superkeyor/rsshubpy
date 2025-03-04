@@ -92,6 +92,12 @@ def acres_thread(category=''):
     from rsshub.spiders.acres.thread import ctx
     return render_template('main/atom.xml', **filter_content(ctx(category)))
 
+@bp.route('/xueqiu/hots')
+def xueqiu_hots(category=''):
+    from rsshub.spiders.xueqiu.hots import ctx
+    return render_template('main/atom.xml', **filter_content(ctx(category)))
+    
+
 
 
 @bp.route('/cninfo/announcement/<string:stock_id>/<string:category>')

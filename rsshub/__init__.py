@@ -26,7 +26,7 @@ def create_app(config_name=None):
 
     Analytics(app)
     app.config['ANALYTICS']['GOOGLE_UNIVERSAL_ANALYTICS']['ACCOUNT'] = ga_account
-    app.config['ANALYTICS']['ENABLED'] = True
+    app.config['ANALYTICS']['ENABLED'] = False
 
     register_blueprints(app)
     register_extensions(app)
