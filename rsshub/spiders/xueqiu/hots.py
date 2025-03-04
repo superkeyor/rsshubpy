@@ -22,8 +22,10 @@ def ctx(category=''):
         return False
     
     for post in posts:
-        if regex_match(post['author'], blocker['xueqiu']['author'])]: posts.pop(post)
-
+        if regex_match(post['author'], blocker['xueqiu']['author'])]: posts.remove(post)
+        if regex_match(post['title'], blocker['xueqiu']['title'])]: posts.remove(post)
+        if regex_match(post['summary'], blocker['xueqiu']['content'])]: posts.remove(post)
+        
     return {
         'title': "雪球",
         'link': "https://xueqiu.com",
