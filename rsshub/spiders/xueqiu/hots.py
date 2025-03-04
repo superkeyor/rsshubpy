@@ -34,7 +34,7 @@ def ctx(category=''):
             post['title']=post['author'] + ": " + soup.text.replace("$","")[:20]
         else:
             post['title']=post['author'] + ": " + post['title']
-
+        
         if regex_match(post['author'], blocker['xueqiu']['author']): posts.remove(post)
         if regex_match(post['title'], blocker['xueqiu']['title']): posts.remove(post)
         if regex_match(post['summary'], blocker['xueqiu']['content']): posts.remove(post)
