@@ -13,7 +13,7 @@ def ctx(category=''):
     # feed level
     posts = feed.entries
     
-    blocker = requests.get("https://raw.githubusercontent.com/superkeyor/rsshub_python/blocker.json").json
+    blocker = requests.get("https://raw.githubusercontent.com/superkeyor/rsshub_python/refs/heads/master/rsshub/blocker.json").json()
     def regex_match(text, keywords):
         """Helper function to check if any of the keywords match the text using regex."""
         for keyword in keywords:
