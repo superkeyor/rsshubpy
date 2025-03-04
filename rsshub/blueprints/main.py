@@ -28,21 +28,29 @@ def filter_content(ctx):
     limit = request.args.get('limit', type=int)
     items = ctx['items'].copy()
     
+    import re
+    def regex_match(text, keywords):
+        """Helper function to check if any of the keywords match the text using regex."""
+        for keyword in keywords:
+            if re.search(keyword, text):
+                return True
+        return False
+
     if include_title:
         include_keywords = include_title.split('|') if '|' in include_title else [include_title]
-        items = [item for item in items if any(keyword in item['title'] for keyword in include_keywords)]
-    
+        items = [item for item in items if regex_match(item['title'], include_keywords)]
+
     if include_description:
         include_keywords = include_description.split('|') if '|' in include_description else [include_description]
-        items = [item for item in items if any(keyword in item['description'] for keyword in include_keywords)]
-    
+        items = [item for item in items if regex_match(item['description'], include_keywords)]
+
     if exclude_title:
         exclude_keywords = exclude_title.split('|') if '|' in exclude_title else [exclude_title]
-        items = [item for item in items if all(keyword not in item['title'] for keyword in exclude_keywords)]
-    
+        items = [item for item in items if not regex_match(item['title'], exclude_keywords)]
+
     if exclude_description:
         exclude_keywords = exclude_description.split('|') if '|' in exclude_description else [exclude_description]
-        items = [item for item in items if all(keyword not in item['description'] for keyword in exclude_keywords)]
+        items = [item for item in items if not regex_match(item['description'], exclude_keywords)]
     
     if limit:
         items = items[:limit]
