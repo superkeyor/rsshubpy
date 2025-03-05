@@ -10,9 +10,6 @@ def ctx(category=''):
     res = requests.get(feed_url,headers=DEFAULT_HEADERS,verify=False)
     feed = feedparser.parse(res.text)
     
-    # feed level
-    posts = feed.entries
-    
     # print(list(os.environ.items()))
     if os.getenv('FLASK_ENV') == "development": 
         with open('rsshub/blocker.json', 'r') as file:
@@ -27,7 +24,8 @@ def ctx(category=''):
                 return True
         return False
     
-    for post in posts:
+    posts = []
+    for post in feed.entries:
         soup = BeautifulSoup(post['summary'],'lxml')
         
         if post['title']=='': 
@@ -35,13 +33,14 @@ def ctx(category=''):
         else:
             post['title']=post['author'] + ": " + post['title']
         
-        if regex_match(post['author'], blocker['xueqiu']['author']): posts.remove(post)
-        if regex_match(post['title'], blocker['xueqiu']['title']): posts.remove(post)
-        if regex_match(post['summary'], blocker['xueqiu']['content']): posts.remove(post)
+        if ( not regex_match(post['author'], blocker['xueqiu']['author']) ) and \
+           ( not regex_match(post['title'], blocker['xueqiu']['title']) ) and \
+           ( not regex_match(post['summary'], blocker['xueqiu']['content']) ):
+            posts.append(post)
         
         for img in soup.find_all('img', src=lambda x: 'emoji' in x):
             # Replace the height attribute with a smaller value
-            img['height'] = '12'
+            img['height'] = 18; img['width'] = 18;
         post['summary'] = str(soup)
         
     return {
