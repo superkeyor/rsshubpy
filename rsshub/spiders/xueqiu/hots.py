@@ -46,7 +46,7 @@ def ctx(category=''):
     return {
         'title': "雪球",
         'link': "https://xueqiu.com",
-        'description': "雪球热门帖子",
+        'description': "雪球热门帖子\nhttps://github.com/superkeyor/rsshub_python/edit/master/rsshub/blocker.json",
         'author': 'Jerry',
         'items': posts 
     }  
