@@ -41,7 +41,7 @@ def ctx(category=''):
         for img in soup.find_all('img', src=lambda x: 'emoji' in x):
             # Replace the height attribute with a smaller value
             img['height'] = 18; img['width'] = 18;
-        post['summary'] = str(soup)
+        post['summary'] = str(soup) + f'<div align="right"><a href="{post["link"]}" target="_blank">阅读原文</a></div>'
         
     return {
         'title': "雪球",
