@@ -75,6 +75,7 @@ def parse(post):
             content += f"#{i+1}: <i>{a} (op)</i> {c}<br>"
         else:
             content += f"#{i+1}: <i>{a}</i> {c}<br>"
+    content += f'<div align="right"><a href="{link}" target="_blank">阅读原文</a></div>'
     
     item = {}
     item['title']=post.text
