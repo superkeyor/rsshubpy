@@ -3,9 +3,10 @@ from flask import Response
 import requests
 from parsel import Selector
 import bs4
+from bs4 import BeautifulSoup 
 
-DEFAULT_HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'}
-
+# https://www.whatismybrowser.com/guides/the-latest-user-agent/chrome
+DEFAULT_HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36'}
 
 class XMLResponse(Response):
     def __init__(self, response, **kwargs):
@@ -13,7 +14,6 @@ class XMLResponse(Response):
             if response.startswith('<?xml'):
                 kwargs['mimetype'] = 'application/xml'
         return super().__init__(response, **kwargs)
-
 
 def fetch(url: str, headers: dict=DEFAULT_HEADERS, proxies: dict=None):
     try:
@@ -26,6 +26,59 @@ def fetch(url: str, headers: dict=DEFAULT_HEADERS, proxies: dict=None):
         tree = Selector(text=html)
         return tree
 
+def fetch_by_requests(url: str, headers: dict=DEFAULT_HEADERS, proxies: dict=None):
+    try:
+        res = requests.get(url, headers=headers, proxies=proxies)
+        res.raise_for_status()
+    except Exception as e:
+        print(f'[Err] {e}')
+    else:
+        soup = BeautifulSoup(res.content, "lxml")
+        return soup
+
+# # manually setup chromium profile
+# # https://github.com/seleniumbase/SeleniumBase/blob/master/seleniumbase/plugins/driver_manager.py#L66
+# from seleniumbase import Driver
+# driver = Driver(headless=False, headed=True, undetectable=True, uc_cdp_events=True, driver_version="keep", incognito=False, mobile=False, disable_csp=True, ad_block=True, user_data_dir="/home/parallels/Desktop/chromiumprofile")
+# # https://nowsecure.nl/#relax   https://bot.sannysoft.com
+# driver.open("https://bot.sannysoft.com")
+# https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag
+# https://greasyfork.org/en/scripts/514737-bloomberg-paywall-bypass
+# https://www.bloomberg.com/latest/markets-wrap
+
+def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None):
+    # https://github.com/seleniumbase/SeleniumBase/discussions/2118
+    # run uc mode to manually set up profile; profile folder should be nonexistent
+    # then it will be created by uc and not be deleted even after closing the browser
+    # https://nowsecure.nl/#relax   https://bot.sannysoft.com
+    import os
+    # print(list(os.environ.items()))
+    if os.getenv('FLASK_ENV') == "development":
+        if user_data_dir is None: user_data_dir = "/home/parallels/Desktop/chromiumprofile"
+        os.system(f"rm -rf {user_data_dir}")
+        os.system(f"cp -r /home/parallels/Desktop/rsshub_python/rsshub/chromiumprofile {user_data_dir}")
+        if HEADED is None: HEADED = True
+        if DEBUG is None: DEBUG = True
+    else:
+        if user_data_dir is None: user_data_dir = "/app/rsshub/chromiumprofile"
+        if HEADED is None: HEADED = False
+        if DEBUG is None: DEBUG = False
+
+    # https://github.com/seleniumbase/SeleniumBase/blob/master/seleniumbase/plugins/sb_manager.py
+    # https://seleniumbase.io/examples/cdp_mode/ReadMe/#cdp-mode-usage
+    from seleniumbase import SB
+    with SB(headless=True, headed=HEADED, maximize=True,
+            undetectable=True, uc_cdp_events=True, driver_version="keep", 
+            incognito=False, mobile=False, disable_csp=True, ad_block=True, 
+            user_data_dir=user_data_dir) as sb:
+        sb.activate_cdp_mode(url)
+        source = sb.get_page_source()
+        soup = BeautifulSoup(source, "lxml")
+        url = sb.get_current_url()
+        title = sb.get_page_title()
+        # n(next), s(step), c(continue), q(quit)
+        if DEBUG: import pdb; pdb.set_trace()
+        return soup, source, url, title
 
 async def fetch_by_puppeteer(url):
     try:

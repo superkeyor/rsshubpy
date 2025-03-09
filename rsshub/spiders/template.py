@@ -1,4 +1,4 @@
-from rsshub.utils import DEFAULT_HEADERS, fetch, fetch_by_puppeteer, extract_html, decompose_element
+from rsshub.utils import DEFAULT_HEADERS, fetch, fetch_by_requests, fetch_by_browser, extract_html, decompose_element
 import requests 
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
@@ -57,6 +57,9 @@ def parse(post):
     soups = collect_all_pages(link, next_button_attrs={'rel': 'next'})
     contents=[]; authors=[]
 
+    # print(list(os.environ.items()))
+    # if os.getenv('FLASK_ENV') == "development": 
+    
     for n, soup in enumerate(soups, start=1):
         # "fix" emoji
         emoji_elements = soup.find_all('img', class_='emoji smilies')

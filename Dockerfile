@@ -1,5 +1,5 @@
 # 使用官方的 Python 镜像作为基础镜像
-FROM python:3.8-slim
+FROM python:3.11-slim-bookworm
 
 # 设置工作目录
 WORKDIR /app
@@ -9,6 +9,16 @@ COPY . .
 
 # 安装Python依赖
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Selenium
+RUN apt-get update && \
+    apt-get install -y \
+    chromium \
+    chromium-driver \
+    xvfb \
+    xauth && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # 暴露端口
 EXPOSE 5000
