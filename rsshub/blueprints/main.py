@@ -63,6 +63,11 @@ def filter_content(ctx):
 
 
 #---------- feed路由从这里开始 -----------#
+@bp.route('/bloomberg/<string:category>')
+def bloomberg_article(category=''):
+    from rsshub.spiders.bloomberg.article import ctx
+    return render_template('main/atom.xml', **filter_content(ctx(category)))
+
 @bp.route('/fidelity/<string:category>')
 def fidelity_article(category='weekly'):
     from rsshub.spiders.fidelity.article import ctx

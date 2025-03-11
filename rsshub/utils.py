@@ -53,12 +53,20 @@ def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None):
     # https://nowsecure.nl/#relax   https://bot.sannysoft.com
     import os
     # print(list(os.environ.items()))
-    if os.getenv('FLASK_ENV') == "development":
-        if user_data_dir is None: user_data_dir = "/home/parallels/Desktop/chromiumprofile"
+    # vmd
+    if os.getenv('FLASK_ENV') == "development" and 'XDG_CURRENT_DESKTOP' in os.environ:
+        if user_data_dir is None: user_data_dir = "~/Desktop/chromiumprofile"
         os.system(f"rm -rf {user_data_dir}")
-        os.system(f"cp -r /home/parallels/Desktop/rsshub_python/rsshub/chromiumprofile {user_data_dir}")
+        os.system(f"cp -r ~/Desktop/rsshub_python/rsshub/chromiumprofile {user_data_dir}")
         if HEADED is None: HEADED = True
         if DEBUG is None: DEBUG = True
+    # vmo
+    elif os.getenv('FLASK_ENV') == "development" and 'XDG_CURRENT_DESKTOP' not in os.environ:
+        if user_data_dir is None: user_data_dir = "~/chromiumprofile"
+        os.system(f"rm -rf {user_data_dir}")
+        os.system(f"cp -r ~/rsshub_python/rsshub/chromiumprofile {user_data_dir}")
+        if HEADED is None: HEADED = False
+        if DEBUG is None: DEBUG = False
     else:
         if user_data_dir is None: user_data_dir = "/app/rsshub/chromiumprofile"
         if HEADED is None: HEADED = False
@@ -72,6 +80,8 @@ def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None):
             incognito=False, mobile=False, disable_csp=True, ad_block=True, 
             user_data_dir=user_data_dir) as sb:
         sb.activate_cdp_mode(url)
+        sb.sleep(3) # wait for userscript to work
+        print(user_data_dir)
         source = sb.get_page_source()
         soup = BeautifulSoup(source, "lxml")
         url = sb.get_current_url()
