@@ -18,7 +18,7 @@ def ctx(category=''):
 
     soup, source, link, title = fetch_by_browser(url)
     item = {}
-    item['title'] = title
+    item['title'] = soup.find('h1').text
     item['link'] = link
     item['pubDate'] = datetime.fromisoformat(soup.find('time').get('datetime').replace('Z', '+00:00'))
     item['id'] = link
@@ -50,32 +50,6 @@ def ctx(category=''):
                 found_author_block = True
             elif found_author_block and element.name == 'div':
                 element.decompose()
-    
-    ########## resize images
-    images = content.find_all('img', srcset=True)
-    fixed_width = 480
-    # Update each image to use the fixed width and proportional height
-    for img in images:
-        try:
-            img['width'] = fixed_width
-            if 'srcset' in img.attrs:
-                # Get the first URL from srcset to extract dimensions
-                srcset_items = img['srcset'].split(', ')
-                first_item = srcset_items[0].strip()
-                url = first_item.split(' ')[0]  # Extract URL (e.g., "220x147.webp")
-                # Extract width and height from the URL
-                filename = url.split('/')[-1]
-                dimensions = filename.split('.')[0]
-                original_width, original_height = map(int, dimensions.split('x'))
-                # Calculate proportional height
-                aspect_ratio = original_height / original_width
-                img['height'] = int(fixed_width * aspect_ratio)
-            # Remove srcset and sizes attributes (no longer needed)
-            del img['srcset']
-            if 'sizes' in img.attrs:
-                del img['sizes']
-        except Exception as e:
-            print(f"Error processing image: {e}")
     
     item['description'] = f'{str(content)} <div align="right"><a href="{link}" target="_blank">Original Article</a></div>'
 

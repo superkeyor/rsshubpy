@@ -16,6 +16,7 @@ venv
 htmlcov/
 data-dev.db
 ._*
+downloaded_files/
 
 .env
 #Dockerfile

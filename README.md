@@ -13,7 +13,7 @@ pip3 install -r requirements.txt
 sudo apt install quiterss -y   # brew install --cask fluent-reader
 fi
 
-sudo docker run --rm --name rsshub_python -p 5001:5000 superkeyor/rsshub_python:latest
+sudo docker run -d --rm --name rsshub_python -p 81201:5000 superkeyor/rsshub_python:latest
 flask run --host=0.0.0.0 --port=1201   # ipython # to debug
 EOF
 chmod +x run
