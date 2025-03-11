@@ -22,7 +22,7 @@ def collect_all_pages(start_url, next_button_attrs):
     session = requests.Session()
     soups = []
 
-    url = start_url
+    url = start_url; i = 1
     while url:
         response = session.get(url)
         if response.status_code != 200:
@@ -34,7 +34,7 @@ def collect_all_pages(start_url, next_button_attrs):
 
         next_button = soup.find("a", attrs=next_button_attrs)
         if not next_button or not next_button.get("href"):
-            print("No more pages found.")
+            print(f"Found {i} page(s).")
             break
 
         next_page_url = next_button["href"]
@@ -45,7 +45,7 @@ def collect_all_pages(start_url, next_button_attrs):
             next_page_url = next_page_url
 
         # Move to the next page
-        url = next_page_url
+        url = next_page_url; i += 1
 
         # Optional: Add a delay to avoid overwhelming the server
         time.sleep(1)  # Sleep for 1 second between requests
@@ -93,8 +93,12 @@ def parse(post):
     return item
 
 def ctx(category=''):
-    html = fetch(domain, headers=DEFAULT_HEADERS).get()
-    soup = BeautifulSoup(html, 'lxml')
+    routes = {
+        'wrap': f"{domain}/latest/markets-wrap",
+    }
+    url = routes[category]
+
+    soup = fetch_by_requests(url, headers=DEFAULT_HEADERS)
     
     pop = soup.find('div',attrs={'id':'popular-topics-box'}).find_all('a',attrs={"class":"topictitle"})
     rec = soup.find('div',attrs={'id':'recent-recommended-topics-box'}).find_all('a',attrs={"class":"topictitle"})

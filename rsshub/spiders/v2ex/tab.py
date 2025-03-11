@@ -1,0 +1,86 @@
+from rsshub.utils import DEFAULT_HEADERS, fetch, fetch_by_requests, fetch_by_browser, extract_html, decompose_element
+import requests 
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+from datetime import datetime
+import time
+import re
+import arrow
+from urllib.parse import urlparse, urlunparse
+
+domain = 'https://www.v2ex.com'
+
+def collect_all_pages(start_url, next_button_attrs={'title': '下一页'}):
+    session = requests.Session()
+    soups = []
+
+    url = start_url; i = 1
+    parsed_url = urlparse(url)
+    base_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, '', '', ''))
+    while url:
+        response = session.get(url)
+        if response.status_code != 200:
+            print(f"Failed to retrieve page: {url}")
+            break
+
+        soup = BeautifulSoup(response.content, "lxml")
+        soups.append(soup)
+
+        next_button = soup.find("td", attrs=next_button_attrs)
+        if not next_button:
+            print(f"Found {i} page(s).")
+            break
+
+        next_page_url = next_button.get("onclick").replace("location.href='",base_url).replace("';","")
+        url = next_page_url; i += 1
+
+        time.sleep(1)  # Sleep for 1 second between requests
+
+    return soups
+
+def parse(post):
+    link = post
+    soups = collect_all_pages(link)
+    reply_list = []
+    for soup in soups:
+        reply_list.extend(soup.select('[id^="r_"]'))
+    reply_content = ""
+    for reply in reply_list:
+        content = reply.select_one('.reply_content').decode_contents()
+        author = reply.select_one('.dark').text
+        if reply.select_one('.badge.op'):
+            op = "(op)"
+        else:
+            op = "&nbsp;&nbsp;&nbsp;&nbsp;"
+        no = reply.select_one('.no').text
+        if reply.select_one('.small.fade'):
+            heart = f"↑{reply.select_one('.small.fade').text.strip()}"
+        else:
+            heart = ''
+        reply_content += f"<p><div>#{no}: <i>{author} {op}</i>&nbsp;&nbsp;&nbsp;&nbsp;{heart}</div><div>{content}</div></p>"
+
+    
+    content='<br><div>附言</div>'.join([d.decode_contents() for d in soup.select('div.topic_content')])
+    
+    item = {}
+    item['title']=soups[0].select_one('.header h1').text
+    item['link']=link
+    item['author']=soups[0].select_one('div.header > small > a').text
+    item['pubDate']=datetime.fromisoformat( soups[0].select_one('div.header > small > span').get('title') )
+    item['description']=f"#0: <i>{item['author']} (op)<i><br>{content}<div>{reply_content}</div>"
+    
+    return item
+
+def ctx(category=''):
+    url = f"{domain}/?tab={category}"
+    soup = fetch_by_requests(url)
+    posts = soup.select('span.item_title > a')
+    posts = [f"{domain}{post.get('href').replace('#.*$', '')}" for post in posts]
+
+    return {
+        'title': 'V2EX',
+        'link': domain,
+        'description': '',
+        'author': 'Jerry',
+        'items': list(map(parse, posts)) 
+    }

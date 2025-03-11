@@ -83,11 +83,6 @@ def ymail_folder(category=''):
     from rsshub.spiders.ymail.folder import ctx
     return render_template('main/atom.xml', **filter_content(ctx(category)))
 
-@bp.route('/newmitbbs')
-def newmitbbs_home(category=''):
-    from rsshub.spiders.newmitbbs.home import ctx
-    return render_template('main/atom.xml', **filter_content(ctx(category)))
-
 @bp.route('/13')
 def acres_home(category=''):
     from rsshub.spiders.acres.home import ctx
@@ -95,6 +90,16 @@ def acres_home(category=''):
 @bp.route('/14')
 def acres_thread(category=''):
     from rsshub.spiders.acres.thread import ctx
+    return render_template('main/atom.xml', **filter_content(ctx(category)))
+
+@bp.route('/newmitbbs')
+def newmitbbs_home(category=''):
+    from rsshub.spiders.newmitbbs.home import ctx
+    return render_template('main/atom.xml', **filter_content(ctx(category)))
+
+@bp.route('/v2ex/tab/<string:category>')
+def v2ex_tab(category=''):
+    from rsshub.spiders.v2ex.tab import ctx
     return render_template('main/atom.xml', **filter_content(ctx(category)))
 
 @bp.route('/xueqiu/hots')
