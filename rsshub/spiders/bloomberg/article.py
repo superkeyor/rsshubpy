@@ -36,7 +36,7 @@ def ctx(category=''):
         if not button.find('img'):
             button.decompose()
         else:
-            # Change button with img to div tag
+            # Change button with img to div tag (to fix mobile view)
             button.name = 'div'
     
     ########## remove players
