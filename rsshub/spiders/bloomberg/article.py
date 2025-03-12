@@ -27,8 +27,8 @@ def ctx(category=''):
     item['author'] = soup.find('a',class_=re.compile('Byline_author')).text
     
     content = soup.find('div',class_=re.compile("gridLayout_centerContent"))
-    ########## remove timestamp
-    content = decompose_element(content,'div',class_=re.compile("timestamp"))
+    ########## remove author/timestamp
+    content = decompose_element(content,'div',class_=re.compile("styles_bylineSpeech"))
 
     ########## remove all buttons
     buttons = content.find_all('button')
