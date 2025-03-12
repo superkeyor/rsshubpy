@@ -61,7 +61,9 @@ def parse(post):
 
     
     content='<br><div>附言</div>'.join([d.decode_contents() for d in soup.select('div.topic_content')])
-    
+    content=f"#0: <i>{item['author']} (op)</i>{content}<div>{reply_content}</div>"
+    content+=f'<div align="right"><a href="{link}" target="_blank">阅读原文</a></div>'
+
     item = {}
     item['title']=soups[0].select_one('.header h1').text
     item['link']=link
