@@ -58,7 +58,7 @@ def parse(post):
             op = "&nbsp;&nbsp;&nbsp;&nbsp;"
         no = reply.select_one('.no').text
         if reply.select_one('.small.fade'):
-            heart = f"↑{reply.select_one('.small.fade').text.strip()}"
+            heart = f"❤️{reply.select_one('.small.fade').text.strip()}"
         else:
             heart = ''
         reply_content += f"<p><div>#{no}: <i>{author} {op}</i>&nbsp;&nbsp;&nbsp;&nbsp;{heart}</div><div>{content}</div></p>"
