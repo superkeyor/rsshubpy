@@ -1,6 +1,11 @@
 # 使用官方的 Python 镜像作为基础镜像
 FROM python:3.11-slim-bookworm
 
+ENV TZ=US/Central
+RUN apt-get update && apt-get install -y tzdata && \
+    ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata
+
 # 设置工作目录
 WORKDIR /app
 

@@ -19,12 +19,17 @@ def ctx(category=''):
     soup, source, link, title = fetch_by_browser(url)
     item = {}
     item['title'] = soup.find('h1').text
+    abstract = soup.find('ul',class_=re.compile("abstract"))
     item['link'] = link
-    item['pubDate'] = datetime.fromisoformat(soup.find('time').get('datetime').replace('Z', '+00:00'))
+    pubDate = soup.find_all('time').get('datetime')[-1]  # initial time or updated time
+    item['pubDate'] = datetime.fromisoformat(pubDate.replace('Z', '+00:00'))
     item['id'] = link
     item['author'] = soup.find('a',class_=re.compile('Byline_author')).text
     
     content = soup.find('div',class_=re.compile("gridLayout_centerContent"))
+    ########## remove timestamp
+    content = decompose_element(content,'div',class_=re.compile("timestamp"))
+
     ########## remove all buttons
     buttons = content.find_all('button')
     for button in buttons:
@@ -51,7 +56,7 @@ def ctx(category=''):
             elif found_author_block and element.name == 'div':
                 element.decompose()
     
-    item['description'] = f'{str(content)} <div align="right"><a href="{link}" target="_blank">Original Article</a></div>'
+    item['description'] = f'{str(abstract)+str(content)} <div align="right"><a href="{link}" target="_blank">Original Article</a></div>'
 
     return {
         'title': f'Bloomberg {category.title()}',

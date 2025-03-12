@@ -41,6 +41,10 @@ def collect_all_pages(start_url, next_button_attrs={'title': '下一页'}):
 def parse(post):
     link = post
     soups = collect_all_pages(link)
+    title=soups[0].select_one('.header h1').text
+    author=soups[0].select_one('div.header > small > a').text
+    pubDate=datetime.fromisoformat( soups[0].select_one('div.header > small > span').get('title') )
+    
     reply_list = []
     for soup in soups:
         reply_list.extend(soup.select('[id^="r_"]'))
@@ -59,16 +63,15 @@ def parse(post):
             heart = ''
         reply_content += f"<p><div>#{no}: <i>{author} {op}</i>&nbsp;&nbsp;&nbsp;&nbsp;{heart}</div><div>{content}</div></p>"
 
-    
     content='<br><div>附言</div>'.join([d.decode_contents() for d in soup.select('div.topic_content')])
-    content=f"#0: <i>{item['author']} (op)</i>{content}<div>{reply_content}</div>"
+    content=f"#0: <i>{author} (op)</i>{content}<div>{reply_content}</div>"
     content+=f'<div align="right"><a href="{link}" target="_blank">阅读原文</a></div>'
 
     item = {}
-    item['title']=soups[0].select_one('.header h1').text
+    item['title']=title
     item['link']=link
-    item['author']=soups[0].select_one('div.header > small > a').text
-    item['pubDate']=datetime.fromisoformat( soups[0].select_one('div.header > small > span').get('title') )
+    item['author']=author
+    item['pubDate']=pubDate
     item['description']=content
     
     return item

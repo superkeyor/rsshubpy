@@ -82,6 +82,7 @@ def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None):
             incognito=False, mobile=False, disable_csp=True, ad_block=True, 
             user_data_dir=user_data_dir) as sb:
         sb.activate_cdp_mode(url)
+        sb.wait(3)  # give some time for contents to load?
         source = sb.get_page_source()
         soup = BeautifulSoup(source, "lxml")
         url = sb.get_current_url()
