@@ -69,7 +69,7 @@ def parse(post):
     item['link']=link
     item['author']=soups[0].select_one('div.header > small > a').text
     item['pubDate']=datetime.fromisoformat( soups[0].select_one('div.header > small > span').get('title') )
-    item['description']=f"#0: <i>{item['author']} (op)</i>{content}<div>{reply_content}</div>"
+    item['description']=content
     
     return item
 
