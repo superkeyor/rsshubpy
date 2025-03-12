@@ -21,7 +21,7 @@ def ctx(category=''):
     item['title'] = soup.find('h1').text
     abstract = soup.find('ul',class_=re.compile("abstract"))
     item['link'] = link
-    pubDate = soup.find_all('time').get('datetime')[-1]  # initial time or updated time
+    pubDate = soup.find_all('time')[-1].get('datetime')  # initial time or updated time
     item['pubDate'] = datetime.fromisoformat(pubDate.replace('Z', '+00:00'))
     item['id'] = link
     item['author'] = soup.find('a',class_=re.compile('Byline_author')).text
