@@ -35,6 +35,9 @@ def ctx(category=''):
     for button in buttons:
         if not button.find('img'):
             button.decompose()
+        else:
+            # Change button with img to div tag
+            button.name = 'div'
     
     ########## remove players
     pattern = re.compile(r'(Audio|Video)\w*Player')
