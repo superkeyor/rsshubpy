@@ -10,13 +10,17 @@ from urllib.parse import urlparse, urlunparse
 
 domain = 'https://www.v2ex.com'
 
+def get_base_url(url):
+    parsed_url = urlparse(url)
+    base_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, '', '', ''))
+    return base_url
+
 def collect_all_pages(start_url, next_button_attrs={'title': '下一页'}):
     session = requests.Session()
     soups = []
 
     url = start_url; i = 1
-    parsed_url = urlparse(url)
-    base_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, '', '', ''))
+    base_url = get_base_url(url)
     while url:
         response = session.get(url)
         if response.status_code != 200:
@@ -80,7 +84,7 @@ def ctx(category=''):
     url = f"{domain}/?tab={category}"
     soup = fetch_by_requests(url)
     posts = soup.select('span.item_title > a')
-    posts = [f"{domain}{post.get('href').replace('#.*$', '')}" for post in posts]
+    posts = [f"{domain}{re.sub(r'#.*$', '',post.get('href'))}" for post in posts]
 
     return {
         'title': 'V2EX',

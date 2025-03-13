@@ -38,10 +38,10 @@ def fetch_by_requests(url: str, headers: dict=DEFAULT_HEADERS, proxies: dict=Non
 
 # # manually setup chromium profile
 # # https://github.com/seleniumbase/SeleniumBase/blob/master/seleniumbase/plugins/driver_manager.py#L66
-# from seleniumbase import Driver
-# driver = Driver(headless=False, headed=True, undetectable=True, uc_cdp_events=True, driver_version="keep", incognito=False, mobile=False, disable_csp=True, ad_block=True, user_data_dir="/home/parallels/Desktop/chromiumprofile")
+# # from seleniumbase import Driver
+# # driver = Driver(headless=False, headed=True, undetectable=True, uc_cdp_events=True, driver_version="keep", incognito=False, mobile=False, disable_csp=True, ad_block=True, user_data_dir="/home/parallels/Desktop/chromiumprofile")
 # # https://nowsecure.nl/#relax   https://bot.sannysoft.com
-# driver.open("https://bot.sannysoft.com")
+# # driver.open("https://bot.sannysoft.com")
 # https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag
 # https://greasyfork.org/en/scripts/514737-bloomberg-paywall-bypass
 # https://www.bloomberg.com/latest/markets-wrap
