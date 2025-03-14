@@ -29,10 +29,10 @@ def parse(post):
         news = soup.find_all('table',attrs={'class':'DataTableBorder'})
         news2 = soup.find_all('table',attrs={'class':'DatTableBorder'})  # if subscribe news separately, fidelity gives this
         
-        content.append(extract_html(market))
-        content.append('<hr>')
         content.append(extract_html(news))
         content.append(extract_html(news2))
+        content.append('<hr>')
+        content.append(extract_html(market))
         content = ''.join(content)
         # content = content.replace('border="1"','border="1" !important')
         content = content.replace('<a class="SmallText" href="https://yahoo.com/#t">Top</a>','')

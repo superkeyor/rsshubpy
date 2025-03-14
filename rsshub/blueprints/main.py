@@ -72,6 +72,10 @@ def bloomberg_article(category=''):
 def fidelity_article(category='weekly'):
     from rsshub.spiders.fidelity.article import ctx
     return render_template('main/atom.xml', **filter_content(ctx(category)))
+@bp.route('/fidelity/market')
+def fidelity_market(category=''):
+    from rsshub.spiders.fidelity.market import ctx
+    return render_template('main/atom.xml', **filter_content(ctx(category)))
 
 @bp.route('/tldr/ai')
 def tldr_ai(category=''):

@@ -20,6 +20,7 @@ def ctx(category=''):
     item = {}
     item['title'] = soup.find('h1').text
     abstract = soup.find('ul',class_=re.compile("abstract"))
+    abstract = abstract if abstract else ''  # sometimes no abstract
     item['link'] = link
     pubDate = soup.find_all('time')[-1].get('datetime')  # initial time or updated time
     item['pubDate'] = datetime.fromisoformat(pubDate.replace('Z', '+00:00'))
