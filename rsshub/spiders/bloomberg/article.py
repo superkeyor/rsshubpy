@@ -24,7 +24,7 @@ def ctx(category=''):
     item['link'] = link
     pubDate = soup.find_all('time')[-1].get('datetime')  # initial time or updated time
     item['pubDate'] = datetime.fromisoformat(pubDate.replace('Z', '+00:00'))
-    # item['id'] = link  # comment out, so that update will be a new article based on update time
+    item['id'] = link  # one post each day
     item['author'] = soup.find('a',class_=re.compile('Byline_author')).text
     
     content = soup.find('div',class_=re.compile("gridLayout_centerContent"))
