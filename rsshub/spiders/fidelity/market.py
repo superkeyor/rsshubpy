@@ -106,7 +106,7 @@ def fidelity_market_screenshot(HEADED=True, DEBUG=True):
         html=''
         for k in imgs:
             img = imgs[k]
-            html += f'<img alt="{k}" src="data:image/png;base64,{img}"><br>'
+            html += f'<img alt="{k}" width="100%" src="data:image/png;base64,{img}"><br>'
         if DEBUG: print(html,file=open('snapshot.html','w'))
         # n(next), s(step), c(continue), q(quit)
         if DEBUG: import pdb; pdb.set_trace()
