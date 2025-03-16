@@ -33,12 +33,13 @@ def collect_all_pages(start_url, next_button_attrs={'title': '下一页'}):
         next_button = soup.find("td", attrs=next_button_attrs)
         if not next_button:
             print(f"Found {i} page(s).")
+            time.sleep(1) # Sleep between topics
             break
 
         next_page_url = next_button.get("onclick").replace("location.href='",base_url).replace("';","")
         url = next_page_url; i += 1
 
-        time.sleep(1)  # Sleep for 1 second between requests
+        time.sleep(1)  # Sleep between pages of same topic
 
     return soups
 
