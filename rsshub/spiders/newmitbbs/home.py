@@ -34,7 +34,8 @@ def collect_all_pages(start_url, next_button_attrs):
 
         next_button = soup.find("a", attrs=next_button_attrs)
         if not next_button or not next_button.get("href"):
-            print("No more pages found.")
+            print("Last page reached.")
+            time.sleep(1) # Sleep between topics
             break
 
         next_page_url = next_button["href"]
@@ -46,7 +47,7 @@ def collect_all_pages(start_url, next_button_attrs):
         url = next_page_url
 
         # Optional: Add a delay to avoid overwhelming the server
-        time.sleep(1)  # Sleep for 1 second between requests
+        time.sleep(1)  # Sleep between pages of same topic
 
     return soups
 
