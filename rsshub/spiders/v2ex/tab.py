@@ -50,7 +50,7 @@ def parse(post):
         return {'title': 'null',
                 'link': link,
                 'author': 'null',
-                'pubDate': None,
+                'pubDate': datetime.now(),
                 'description': ''}
     title=soups[0].select_one('.header h1').text
     author=soups[0].select_one('div.header > small > a').text
