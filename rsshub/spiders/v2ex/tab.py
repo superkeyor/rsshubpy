@@ -49,6 +49,7 @@ def parse(post):
     if len(soups)==0:  # Failed to retrieve page
         return {'title': 'null',
                 'link': link,
+                'id': link,
                 'author': 'null',
                 'pubDate': datetime.now(),
                 'description': ''}
