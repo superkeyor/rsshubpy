@@ -1,6 +1,6 @@
 # Build
 ```
-dset rsshub_python
+dinit rsshub_python
 
 ####### ./run
 cat <<EOF | tee run >/dev/null
