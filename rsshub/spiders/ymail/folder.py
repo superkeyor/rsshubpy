@@ -2,7 +2,7 @@ import requests
 import feedparser
 import arrow
 from bs4 import BeautifulSoup
-from rsshub.utils import DEFAULT_HEADERS, extract_html
+from rsshub.utils import DEFAULT_HEADERS, extract_html, decompose_element
 import re
 
 def parse(post):
@@ -56,7 +56,26 @@ def parse(post):
         item['pubDate'] = post.published if post.has_key('published') else arrow.now().isoformat()
         item['link'] = ''
         item['author'] = post.author
-        
+    
+    elif post.author=='"Longtermtrends" <info@longtermtrends.net>':
+        html = post.summary
+        soup = BeautifulSoup(html, 'lxml')
+
+        # remove header
+        soup = decompose_element(soup, 'tr', class_="header")
+        soup.find('img', alt="Longtermtrends").find_parent('table').find_parent('table').decompose()
+        # change size
+        soup.find('table', width="800")['width']="100%"
+        # remove color
+        content=str(soup)
+        content = re.sub('bgcolor="[#]?.{6}"','',content)
+
+        item['description'] = content
+        item['link'] = 'https://www.longtermtrends.net/newsletter/'
+        item['title'] = f"Long-term Trend: {post.title}"
+        item['pubDate'] = post.published if post.has_key('published') else arrow.now().isoformat()
+        item['author'] = post.author
+
     else:
         item['title'] = post.title
         item['description'] = post.summary if hasattr(post,'summary') else post.title

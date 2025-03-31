@@ -12,8 +12,9 @@ git push git@github.com:/superkeyor/rsshub_python.git
 
 # Docker operations
 if [[ $(command -v docker) != "" ]]; then
-    sudo docker build --tag rsshub_python .
-    sudo docker image tag rsshub_python superkeyor/rsshub_python:latest
+    # sudo docker build --tag rsshub_python .
+    # sudo docker image tag rsshub_python superkeyor/rsshub_python:latest  # additional tag following Docker Hub naming convention
+    sudo docker build --tag superkeyor/rsshub_python:latest .
     sudo docker image push superkeyor/rsshub_python:latest
     # sudo docker buildx build --platform linux/amd64,linux/arm64 -t superkeyor/rsshub_python:latest . --push
 fi
