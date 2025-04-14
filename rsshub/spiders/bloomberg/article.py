@@ -28,6 +28,9 @@ def ctx(category=''):
     item['author'] = soup.find('a',class_=re.compile('Byline_author')).text
     
     content = soup.find('div',class_=re.compile("gridLayout_centerContent"))
+    ########## remove newsletter
+    content = decompose_element(content,'div',class_=re.compile("inlineNewsletter"))
+
     ########## remove author/timestamp
     content = decompose_element(content,'div',class_=re.compile("styles_bylineSpeech"))
 
