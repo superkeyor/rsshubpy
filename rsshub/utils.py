@@ -51,7 +51,7 @@ def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None, wai
     # run uc mode to manually set up profile; profile folder should be nonexistent
     # then it will be created by uc and not be deleted even after closing the browser
     # https://nowsecure.nl/#relax   https://bot.sannysoft.com
-    import os
+    import os, time
     # print(list(os.environ.items()))
     # vmd
     if os.getenv('FLASK_ENV') == "development" and 'XDG_CURRENT_DESKTOP' in os.environ:
@@ -82,7 +82,8 @@ def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None, wai
             incognito=False, mobile=False, disable_csp=True, ad_block=True, 
             user_data_dir=user_data_dir) as sb:
         sb.activate_cdp_mode(url)
-        sb.wait(wait)  # give some time for contents to load?
+        # sb.wait(wait)  # give some time for contents to load?
+        time.sleep(wait)
         source = sb.get_page_source()
         soup = BeautifulSoup(source, "lxml")
         url = sb.get_current_url()
