@@ -16,7 +16,7 @@ def ctx(category=''):
     }
     url = routes[category]
 
-    soup, source, link, title = fetch_by_browser(url, wait=30)
+    soup, source, link, title = fetch_by_browser(url, wait=60)
     item = {}
     item['title'] = soup.find('h1').text
     abstract = soup.find('ul',class_=re.compile("abstract"))
