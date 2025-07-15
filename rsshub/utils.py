@@ -46,7 +46,7 @@ def fetch_by_requests(url: str, headers: dict=DEFAULT_HEADERS, proxies: dict=Non
 # https://greasyfork.org/en/scripts/514737-bloomberg-paywall-bypass
 # https://www.bloomberg.com/latest/markets-wrap
 
-def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None, wait = 10):
+def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None, wait = 3):
     # https://github.com/seleniumbase/SeleniumBase/discussions/2118
     # run uc mode to manually set up profile; profile folder should be nonexistent
     # then it will be created by uc and not be deleted even after closing the browser
