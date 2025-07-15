@@ -10,6 +10,7 @@ cd "\$csd"
 
 if [[ \$(command -v quiterss) == "" ]]; then
 pip3 install -r requirements.txt
+sudo apt update
 sudo apt install quiterss -y   # brew install --cask fluent-reader
 fi
 
