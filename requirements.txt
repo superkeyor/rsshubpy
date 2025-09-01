@@ -29,9 +29,10 @@ python-dotenv==0.19.2
 #pyppeteer==1.0.2
 requests==2.32.3
 six==1.17.0
-seleniumbase==4.35.6
+seleniumbase==4.41.3
 #undetected-chromedriver==3.1.7
 urllib3==2.3.0
 w3lib==1.22.0
 Werkzeug==2.1.2
 zipp==3.6.0
+
