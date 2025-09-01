@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from datetime import datetime
-import time
+import time, random
 import re
 import arrow
 from urllib.parse import urlparse, urlunparse
