@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from datetime import datetime
-import time
+import time, random
 import re
 import arrow
 import feedparser
@@ -47,7 +47,7 @@ def collect_all_pages(start_url, next_button_attrs):
         url = next_page_url
 
         # Optional: Add a delay to avoid overwhelming the server
-        time.sleep(1)  # Sleep between pages of same topic
+        time.sleep(random.uniform(10, 15))  # Sleep for seconds between requests
 
     return soups
 
