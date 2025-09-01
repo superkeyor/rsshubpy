@@ -63,7 +63,7 @@ def parse(post):
     reply_content = ""
     for reply in reply_list:
         content = reply.select_one('.reply_content').decode_contents()
-        author = reply.select_one('.dark').text
+        author1 = reply.select_one('.dark').text
         if reply.select_one('.badge.op'):
             op = "(op)"
         else:
@@ -73,7 +73,7 @@ def parse(post):
             heart = f"❤️{reply.select_one('.small.fade').text.strip()}"
         else:
             heart = ''
-        reply_content += f"<p><div>#{no}: <i>{author} {op}</i>&nbsp;&nbsp;&nbsp;&nbsp;{heart}</div><div>{content}</div></p>"
+        reply_content += f"<p><div>#{no}: <i>{author1} {op}</i>&nbsp;&nbsp;&nbsp;&nbsp;{heart}</div><div>{content}</div></p>"
 
     content='<br><div>附言</div>'.join([d.decode_contents() for d in soup.select('div.topic_content')])
     content=f"#0: <i>{author} (op)</i><br>{content}<div>{reply_content}</div>"
