@@ -47,7 +47,7 @@ def collect_all_pages(start_url, next_button_attrs):
         url = next_page_url
 
         # Optional: Add a delay to avoid overwhelming the server
-        time.sleep(random.uniform(10, 15))  # Sleep for seconds between requests
+        time.sleep(random.uniform(5, 10))  # Sleep for seconds between pages of the same topic
 
     return soups
 
@@ -68,7 +68,8 @@ def parse(post):
             b.decompose()
 
         contents.extend(soup.find_all('div',class_="content"))
-        authors.extend([u.find('span',class_="username").text for u in soup.find_all('div',class_="postbody")])
+        # username-coloured for admin
+        authors.extend([u.find('span',class_=["username", "username-coloured"]).text for u in soup.find_all('div',class_="postbody")])
     
     content=''; op=authors[0]
     for i, a, c in zip(range(len(authors)), authors, contents):
