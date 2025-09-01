@@ -38,8 +38,8 @@ def collect_all_pages(start_url, next_button_attrs={'title': '下一页'}):
 
         next_page_url = next_button.get("onclick").replace("location.href='",base_url).replace("';","")
         url = next_page_url; i += 1
-
-        time.sleep(1)  # Sleep between pages of same topic
+        
+        time.sleep(random.uniform(5, 10)) # Sleep between pages of same topic
 
     return soups
 
