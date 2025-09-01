@@ -24,7 +24,7 @@ Jinja2==3.1.6
 lxml==5.3.1
 MarkupSafe==3.0.2
 parsel==1.6.0
-Pygments==2.19.1
+Pygments==2.19.2
 python-dotenv==0.19.2
 #pyppeteer==1.0.2
 requests==2.32.3
@@ -35,5 +35,6 @@ urllib3==2.3.0
 w3lib==1.22.0
 Werkzeug==2.1.2
 zipp==3.6.0
+
 
 
