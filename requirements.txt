@@ -1,3 +1,4 @@
+setuptools<81
 arrow==1.2.2
 asttokens==2.1.0
 beautifulsoup4==4.13.3

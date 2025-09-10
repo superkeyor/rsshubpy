@@ -7,5 +7,5 @@ setup(
     install_requires=[
         # List your package dependencies here
     ],
-    python_requires='==3.8.*',
+    python_requires='==3.12.*',
 )
