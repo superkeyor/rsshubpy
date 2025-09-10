@@ -1,5 +1,7 @@
 # # 使用官方的 Python 镜像作为基础镜像
 # FROM python:3.12-slim-bookworm
+
+# PIN python, chromium and driver version
 FROM superkeyor/python_chromium_driver:latest
 
 # ENV TZ=US/Central
