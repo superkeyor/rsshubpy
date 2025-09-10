@@ -36,16 +36,17 @@ def fetch_by_requests(url: str, headers: dict=DEFAULT_HEADERS, proxies: dict=Non
         soup = BeautifulSoup(res.content, "lxml")
         return soup
 
-# # manually setup chromium profile
-# # https://github.com/seleniumbase/SeleniumBase/blob/master/seleniumbase/plugins/driver_manager.py#L66
-# # from seleniumbase import Driver
-# # driver = Driver(headless=False, headed=True, undetectable=True, uc_cdp_events=True, driver_version="keep", incognito=False, mobile=False, disable_csp=True, ad_block=True, user_data_dir="/home/parallels/Desktop/chromiumprofile")
-# # https://nowsecure.nl/#relax   https://bot.sannysoft.com
-# # driver.open("https://bot.sannysoft.com")
-# # https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag
+# # manually setup chromium profile  
+# https://github.com/seleniumbase/SeleniumBase/blob/master/seleniumbase/plugins/driver_manager.py#L66
+# 
+# from seleniumbase import Driver
+# driver = Driver(headless=False, headed=True, undetectable=True, uc_cdp_events=True, driver_version="keep", incognito=False, mobile=False, disable_csp=True, ad_block=True, user_data_dir="/home/parallels/Desktop/chromiumprofile")
+# driver.open("https://bot.sannysoft.com")  # https://nowsecure.nl/#relax   https://bot.sannysoft.com
+# 
 # https://chromewebstore.google.com/detail/scriptcat/ndcooeababalnlpkfedmmbbbgkljhpjf?hl=en-US
 # https://greasyfork.org/en/scripts/514737-bloomberg-paywall-bypass
 # https://www.bloomberg.com/latest/markets-wrap
+        # # outdated: https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag
 
 def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None, wait = 3):
     # https://github.com/seleniumbase/SeleniumBase/discussions/2118
@@ -157,4 +158,5 @@ def filter_content(items):
         if p1.match(title) or p2.match(title) or p3.match(title):
             content.append(item)
     return content
+
 
