@@ -46,16 +46,18 @@ def collect_all_pages(start_url, next_button_attrs={'title': '下一页'}):
 def parse(post):
     link = post
     soups = collect_all_pages(link)
-    if len(soups)==0:  # Failed to retrieve page
+    
+    try:
+        title=soups[0].select_one('.header h1').text
+        author=soups[0].select_one('div.header > small > a').text
+        pubDate=datetime.fromisoformat( soups[0].select_one('div.header > small > span').get('title') )
+    except:
         return {'title': 'null',
                 'link': link,
                 'id': link,
                 'author': 'null',
                 'pubDate': datetime.now(),
                 'description': ''}
-    title=soups[0].select_one('.header h1').text
-    author=soups[0].select_one('div.header > small > a').text
-    pubDate=datetime.fromisoformat( soups[0].select_one('div.header > small > span').get('title') )
     
     reply_list = []
     for soup in soups:
