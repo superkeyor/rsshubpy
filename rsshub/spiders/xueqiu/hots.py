@@ -5,6 +5,9 @@ from bs4 import BeautifulSoup
 from rsshub.utils import DEFAULT_HEADERS, extract_html
 import re, json, os
 
+# https://xueqiu.com/u/1247347556
+# http://192.168.1.2:1200/xueqiu/user/1247347556
+
 def ctx(category=''):
     feed_url = f"http://192.168.1.2:1200/xueqiu/hots"
     res = requests.get(feed_url,headers=DEFAULT_HEADERS,verify=False)
