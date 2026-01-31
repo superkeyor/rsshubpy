@@ -13,9 +13,18 @@ domain = 'https://xueqiu.com'
 
 def parse_html_content(html_content):
     soup = BeautifulSoup(html_content, 'lxml')
-    # Find all <a> tags with xueqiu.com in href and remove them
-    for tag in soup.find_all('a', href=lambda x: x and 'xueqiu.com' in x):
-        tag.decompose()
+    # Remove all <a> tags that link to xueqiu.com
+    for a in soup.find_all('a'):
+        href = a.get('href', '')
+        if 'xueqiu.com' in href:
+            a.unwrap()  # Remove tag but keep text content
+    # Get text with remaining <a> tags
+    result = str(soup)
+    # Remove all other HTML tags except <a>
+    soup2 = BeautifulSoup(result, 'html.parser')
+    for tag in soup2.find_all():
+        if tag.name != 'a':
+            tag.unwrap()
     return str(soup).replace("$","")  # replace $ to remove stock symbol link
 
 def parse_conversation(text):
