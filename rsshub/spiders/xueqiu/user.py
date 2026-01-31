@@ -25,7 +25,7 @@ def parse_html_content(html_content):
     for tag in soup2.find_all():
         if tag.name != 'a':
             tag.unwrap()
-    return str(soup).replace("$","")  # replace $ to remove stock symbol link
+    return str(soup2).replace("$","")  # replace $ to remove stock symbol link
 
 def parse_conversation(text):
     # Split by '//' to separate different comments
