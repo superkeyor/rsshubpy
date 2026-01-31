@@ -110,6 +110,12 @@ def v2ex_tab(category=''):
 def xueqiu_hots(category=''):
     from rsshub.spiders.xueqiu.hots import ctx
     return render_template('main/atom.xml', **filter_content(ctx(category)))
+@bp.route('/xueqiu/user/<string:id>')
+@bp.route('/xueqiu/user/<string:id>/<string:category>')
+def xueqiu_user(id='', category='10'):
+    # category 10:'全部'  0:'原发布'  2:'长文'  4:'问答'  9:'热门'  11:'交易'
+    from rsshub.spiders.xueqiu.user import ctx
+    return render_template('main/atom.xml', **filter_content(ctx(id, category)))
     
 
 

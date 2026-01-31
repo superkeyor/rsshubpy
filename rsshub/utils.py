@@ -54,6 +54,25 @@ def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None, wai
     # then it will be created by uc and not be deleted even after closing the browser
     # https://nowsecure.nl/#relax   https://bot.sannysoft.com
     import os, time
+
+    def is_ipython_interactive():
+        try:
+            from IPython import get_ipython
+            ipython = get_ipython()
+            if ipython is None:
+                return False
+            # TerminalInteractiveShell = interactive IPython
+            # ZMQInteractiveShell = Jupyter notebook
+            return ipython.__class__.__name__ in ['TerminalInteractiveShell', 'ZMQInteractiveShell']
+        except (ImportError, AttributeError):
+            return False
+    # assume in dev mode if in ipython interactive shell
+    if is_ipython_interactive(): os.environ['FLASK_ENV'] = 'development'
+    # alternatively to debug
+    # ipython
+    # import os; os.environ['FLASK_ENV'] = 'development'; from rsshub.utils import fetch_by_browser
+    # fetch_by_browser(url)
+
     # print(list(os.environ.items()))
     # vmd
     if os.getenv('FLASK_ENV') == "development" and 'XDG_CURRENT_DESKTOP' in os.environ:
@@ -83,9 +102,18 @@ def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None, wai
             undetectable=True, uc_cdp_events=True, driver_version="keep", 
             incognito=False, mobile=False, disable_csp=True, ad_block=True, 
             user_data_dir=user_data_dir) as sb:
-        sb.activate_cdp_mode(url)
-        # sb.wait(wait)  # give some time for contents to load?
-        time.sleep(wait)
+        if type(url) is not list:
+            sb.activate_cdp_mode(url)
+            # sb.wait(wait)  # give some time for contents to load?
+            time.sleep(wait)
+        else:
+            # use first url to set up cookie etc
+            sb.activate_cdp_mode(url[0])
+            time.sleep(wait)
+            for u in url[1:]:
+                sb.cdp.open_new_tab(u)
+                time.sleep(wait)
+            sb.cdp.switch_to_newest_tab()
         source = sb.get_page_source()
         soup = BeautifulSoup(source, "lxml")
         url = sb.get_current_url()

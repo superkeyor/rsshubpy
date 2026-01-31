@@ -10,8 +10,8 @@ fi
 
 sudo docker kill rsshub_python || sudo docker rm rsshub_python || sudo docker run -d --rm --name rsshub_python -p 11201:5000 superkeyor/rsshub_python:latest
 echo ""
+echo "*******************************************"
+echo "flask run at port 1201, docker run at 11201"
+echo "*******************************************"
 flask run --host=0.0.0.0 --port=1201
-# alternatively to debug
-# ipython
-# import os; os.environ['FLASK_ENV'] = 'development'; from rsshub.utils import fetch_by_browser
-# fetch_by_browser(url)
+

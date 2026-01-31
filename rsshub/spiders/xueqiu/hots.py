@@ -5,9 +5,6 @@ from bs4 import BeautifulSoup
 from rsshub.utils import DEFAULT_HEADERS, extract_html
 import re, json, os
 
-# https://xueqiu.com/u/1247347556
-# http://192.168.1.2:1200/xueqiu/user/1247347556
-
 def ctx(category=''):
     feed_url = f"http://192.168.1.2:1200/xueqiu/hots"
     res = requests.get(feed_url,headers=DEFAULT_HEADERS,verify=False)
@@ -29,7 +26,8 @@ def ctx(category=''):
     
     posts = []
     for post in feed.entries:
-        soup = BeautifulSoup(post['summary'],'lxml')
+        # feedparser has both summary and description as aliases; rsshub/templates/main/atom.xml template uses 'description'
+        soup = BeautifulSoup(post['description'],'lxml')
         
         if post['title']=='': 
             post['title']=post['author'] + ": " + soup.text.replace("$","")[:20]
@@ -38,13 +36,13 @@ def ctx(category=''):
         
         if ( not regex_match(post['author'], blocker['xueqiu']['author']) ) and \
            ( not regex_match(post['title'], blocker['xueqiu']['title']) ) and \
-           ( not regex_match(post['summary'], blocker['xueqiu']['content']) ):
+           ( not regex_match(post['description'], blocker['xueqiu']['content']) ):
             posts.append(post)
         
         for img in soup.find_all('img', src=lambda x: 'emoji' in x):
             # Replace the height attribute with a smaller value
             img['height'] = 18; img['width'] = 18;
-        post['summary'] = str(soup) + f'<div align="right"><a href="{post["link"]}" target="_blank">阅读原文</a></div>'
+        post['description'] = str(soup) + f'<div align="right"><a href="{post["link"]}" target="_blank">阅读原文</a></div>'
         
     return {
         'title': "雪球",
