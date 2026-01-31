@@ -13,22 +13,24 @@ domain = 'https://xueqiu.com'
 
 def parse_html_content(html_content):
     soup = BeautifulSoup(html_content, 'lxml')
-    # Find all <a> tags with xueqiu.com and unwrap them (keep text, remove tag)
-    for a_tag in soup.find_all('a'):
-        href = a_tag.get('href', '')
-        if 'xueqiu.com' in href:
-            a_tag.unwrap()  # Remove tag but keep the text
-    # Get the cleaned text with remaining <a> tags
-    result = str(soup)
-    # Remove remaining HTML structure tags but keep <a> tags
-    soup2 = BeautifulSoup(result, 'html.parser')
-    text_parts = []
-    for element in soup2.descendants:
-        if isinstance(element, str):
-            text_parts.append(element)
-        elif element.name == 'a':
-            text_parts.append(str(element))
-    result = ''.join(text_parts)
+    def extract_content(element):
+        result = []
+        for child in element.children:
+            if isinstance(child, str):
+                result.append(child)
+            elif child.name == 'a':
+                href = child.get('href', '')
+                if 'xueqiu.com' in href:
+                    # Replace xueqiu links with just their text
+                    result.append(child.get_text())
+                else:
+                    # Keep non-xueqiu links as HTML
+                    result.append(str(child))
+            else:
+                # Recursively process other tags
+                result.extend(extract_content(child))
+        return result
+    result = ''.join(extract_content(soup))
     return result.replace("$","")  # replace $ to remove stock symbol link
 
 def parse_conversation(text):
