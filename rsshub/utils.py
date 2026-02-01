@@ -53,6 +53,9 @@ def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None, wai
     # run uc mode to manually set up profile; profile folder should be nonexistent
     # then it will be created by uc and not be deleted even after closing the browser
     # https://nowsecure.nl/#relax   https://bot.sannysoft.com
+    # to update profile, run the following in ipython, then overwrite the profile folder:
+    #   ipython
+    #   from rsshub.utils import fetch_by_browser; fetch_by_browser()
     import os, time
 
     def is_ipython_interactive():
@@ -68,10 +71,6 @@ def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None, wai
             return False
     # assume in dev mode if in ipython interactive shell
     if is_ipython_interactive(): os.environ['FLASK_ENV'] = 'development'
-    # alternatively to debug
-    # ipython
-    # import os; os.environ['FLASK_ENV'] = 'development'; from rsshub.utils import fetch_by_browser
-    # fetch_by_browser(url)
 
     # print(list(os.environ.items()))
     # vmd

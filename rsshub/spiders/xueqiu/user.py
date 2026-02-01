@@ -28,69 +28,76 @@ def ctx(id='', category=''):
         post['id'] = post['link']
         post['pubDate'] = arrow.get(item['created_at']).isoformat()
 
-        # inner html
-        if article.find('div', class_='content--description'):
-            content=article.find('div', class_='content--description').find('div').decode_contents()
-        else:
-            content=item['description']
-        # 回复<a href="https://xueqiu.com/n/持股待涨养家糊口" target="_blank">@持股待涨养家糊口</a>: 
-        content=re.sub(r'回复<a href="https://xueqiu\.com/n/[^"]*"[^>]*>@[^<]*</a>:\s*', '', content)
-        content=re.sub(r'//<a href="https://xueqiu\.com[^"]*"[^>]*>(@[^<]*)</a>:', r'//\1<br>', content)
-        
-        title=content.split("//@")
-        if len(title)==1:
-            post['title'] = f"{post['author']}: {BeautifulSoup(title[0],'lxml').text[:20]}"
-        else:
-            post['title'] = f"{post['author']}: Re:{title[1].split('<br>')[0][:10]} {BeautifulSoup(title[0],'lxml').text[:20]}"
-
-        # Check for forwarded blockquote
-        flink = fname = fcontent = fimages = ''
-        fblock = article.find('blockquote', class_='timeline__item__forward')
-        if fblock:
-            flink = domain + fblock.find('a', class_='fake-anchor').get('href')
-            fname = fblock.find('span', class_='user-name').get_text(strip=True).lstrip('@')
-            # Get forwarded content
-            content_div = fblock.find('div', class_='content--description')
-            if content_div:
-                inner_div = content_div.find('div')
-                if inner_div:
-                    fcontent = inner_div.decode_contents()
+        try:
+            # inner html
+            if article.find('div', class_='content--detail'):
+                content=article.find('div', class_='content--detail').find('div').decode_contents()
+            elif article.find('div', class_='content--description'):
+                content=article.find('div', class_='content--description').find('div').decode_contents()
+            else:
+                content=item['description']
+            # 回复<a href="https://xueqiu.com/n/持股待涨养家糊口" target="_blank">@持股待涨养家糊口</a>: 
+            content=re.sub(r'回复<a href="https://xueqiu\.com/n/[^"]*"[^>]*>@[^<]*</a>:\s*', '', content)
+            content=re.sub(r'//<a href="https://xueqiu\.com[^"]*"[^>]*>(@[^<]*)</a>:', r'//\1<br>', content)
             
-            # Get images from nested blockquote
-            images_block = fblock.find('blockquote', class_='status__images')
-            if images_block:
-                for img in images_block.find_all('img'):
-                    src = img.get('data-src')
-                    if src:
-                        if src.startswith('//'):
-                            src = 'https:' + src
-                        fimages += f'<a href="{src}" target="_blank"><img src="{src}" width="200"></a>'
-                fimages += '<br><br>'
-        
-        # Get stats from footer
-        icomment=ilike=''
-        footer = article.find('div', class_='timeline__item__ft--other')
-        if footer:
-            stats = []
-            controls = footer.find_all('a', class_='timeline__item__control')
-            for ctrl in controls:
-                span = ctrl.find('span')
-                if span:
-                    text = span.get_text(strip=True)
-                    if text.isdigit():
-                        stats.append(int(text))
-                    else:
-                        stats.append(0)
-            # forward, comment, like, favorite, complain
-            icomment=f"↴{stats[1]}" if stats[1]>0 else ""
-            ilike=f"↑{stats[2]}" if stats[2]>0 else ""
-        
-        content=content.replace('//@', '<br><br>💬')
-        content=f"💬{post['author']} {icomment} {ilike}<br>{content}<br><br>"
-        quote=f"🔄{fname}<br><a href=\"{flink}\" target=\"_blank\">{fcontent}</a><br>{fimages}" if fname else ""
+            title=content.split("//@")
+            if len(title)==1:
+                post['title'] = f"{post['author']}: {BeautifulSoup(title[0],'lxml').text[:20]}"
+            else:
+                post['title'] = f"{post['author']}: Re:{title[1].split('<br>')[0][:10]} {BeautifulSoup(title[0],'lxml').text[:20]}"
 
-        post['description'] = f'{content}{quote}'
-        post['description'] += f'<div align="right"><a href="{post["link"]}" target="_blank">阅读原文</a></div>'
+            # Check for forwarded blockquote
+            flink = fname = fcontent = fimages = ''
+            fblock = article.find('blockquote', class_='timeline__item__forward')
+            if fblock:
+                flink = domain + fblock.find('a', class_='fake-anchor').get('href')
+                fname = fblock.find('span', class_='user-name').get_text(strip=True).lstrip('@')
+                # Get forwarded content
+                content_div = fblock.find('div', class_='content--description')
+                if content_div:
+                    inner_div = content_div.find('div')
+                    if inner_div:
+                        fcontent = inner_div.decode_contents()
+                
+                # Get images from nested blockquote
+                images_block = fblock.find('blockquote', class_='status__images')
+                if images_block:
+                    for img in images_block.find_all('img'):
+                        src = img.get('data-src')
+                        if src:
+                            if src.startswith('//'):
+                                src = 'https:' + src
+                            fimages += f'<a href="{src}" target="_blank"><img src="{src}" width="200"></a>'
+                    fimages += '<br><br>'
+            
+            # Get stats from footer
+            icomment=ilike=''
+            footer = article.find('div', class_='timeline__item__ft--other')
+            if footer:
+                stats = []
+                controls = footer.find_all('a', class_='timeline__item__control')
+                for ctrl in controls:
+                    span = ctrl.find('span')
+                    if span:
+                        text = span.get_text(strip=True)
+                        if text.isdigit():
+                            stats.append(int(text))
+                        else:
+                            stats.append(0)
+                # forward, comment, like, favorite, complain
+                icomment=f"↴{stats[1]}" if stats[1]>0 else ""
+                ilike=f"↑{stats[2]}" if stats[2]>0 else ""
+            
+            content=content.replace('//@', '<br><br>💬')
+            content=f"💬{post['author']} {icomment} {ilike}<br>{content}<br><br>"
+            quote=f"🔄{fname}<br><a href=\"{flink}\" target=\"_blank\">{fcontent}</a><br>{fimages}" if fname else ""
+
+            post['description'] = f'{content}{quote}'
+            post['description'] += f'<div align="right"><a href="{post["link"]}" target="_blank">阅读原文</a></div>'
+            
+        except:
+            post['title'] = f"{post['author']}: null"
+            post['description'] = ''
         posts.append(post)
 
     return {
