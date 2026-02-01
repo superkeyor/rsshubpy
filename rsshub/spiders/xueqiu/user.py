@@ -30,10 +30,11 @@ def ctx(id='', category=''):
 
         try:
             # inner html
-            if article.find('div', class_='content--detail'):
-                content=article.find('div', class_='content--detail').find('div').decode_contents()
-            elif article.find('div', class_='content--description'):
-                content=article.find('div', class_='content--description').find('div').decode_contents()
+            main_content = article.find('div', class_='timeline__item__content')
+            if main_content.find('div', class_='content--detail'):
+                content=main_content.find('div', class_='content--detail').find('div').decode_contents()
+            elif main_content.find('div', class_='content--description'):
+                content=main_content.find('div', class_='content--description').find('div').decode_contents()
             else:
                 content=item['description']
             # 回复<a href="https://xueqiu.com/n/持股待涨养家糊口" target="_blank">@持股待涨养家糊口</a>: 
@@ -88,9 +89,9 @@ def ctx(id='', category=''):
                 icomment=f"↴{stats[1]}" if stats[1]>0 else ""
                 ilike=f"↑{stats[2]}" if stats[2]>0 else ""
             
-            content=content.replace('//@', '<br><br>💬')
-            content=f"💬{post['author']} {icomment} {ilike}<br>{content}<br><br>"
-            quote=f"🔄{fname}<br><a href=\"{flink}\" target=\"_blank\">{fcontent}</a><br>{fimages}" if fname else ""
+            content=content.replace('//@', '<br><br>💬 ')
+            content=f"💭 {post['author']} {icomment} {ilike}<br>{content}<br><br>"
+            quote=f"🔄 {fname}<br><a href=\"{flink}\" target=\"_blank\">{fcontent}</a><br>{fimages}" if fname else ""
 
             post['description'] = f'{content}{quote}'
             post['description'] += f'<div align="right"><a href="{post["link"]}" target="_blank">阅读原文</a></div>'
