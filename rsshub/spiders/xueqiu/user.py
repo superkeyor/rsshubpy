@@ -91,10 +91,22 @@ def ctx(id='', category=''):
                 icomment=f"↴{stats[1]}" if stats[1]>0 else ""
                 ilike=f"↑{stats[2]}" if stats[2]>0 else ""
             
+            # additional content images that might not bein main content
+            cimages = ''; cblock = article.find('blockquote', class_='status__images')
+            if cblock:
+                for img in cblock.find_all('img'):
+                    src = img.get('data-src') or img.get('src')
+                    if src:
+                        if src.startswith('http') and (src.split("!")[0] not in content) and (src.split("!")[0] not in fimages):
+                            cimages += f'<a href="{src}" target="_blank"><center><img src="{src}"></center></a>'
+                if cimages: cimages = f'<br>{cimages}'  # append images after content
+            
+            content += cimages
             content=content.replace('//@', '<br><br>💬 ')
+            content=re.sub(r'<br>(?!<br>)', '<br><br>', content) # easier reading
             content=f"💭 {post['author']} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {icomment} {ilike}<br>{content}<br><br>"
             quote=f"<a href=\"{flink}\" target=\"_blank\">🔄 {fname}<br>{ftitle}{fcontent}</a>{fimages}<br><br>" if fname else ""
-
+            
             post['description'] = f'{content}{quote}'
             post['description'] += f'<div align="right"><a href="{post["link"]}" target="_blank">阅读原文</a></div>'
             
