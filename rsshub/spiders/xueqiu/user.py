@@ -15,7 +15,7 @@ def ctx(id='', category=''):
     # 10:'全部'  0:'原发布'  2:'长文'  4:'问答'  9:'热门'  11:'交易'
     url1 = f"{domain}/u/{id}" # set cookie first
     url2 = f"{domain}/v4/statuses/user_timeline.json?user_id={id}&type={category}"
-    soups, sources, urls, titles = fetch_by_browser([url1, url2], wait=10)
+    soups, sources, urls, titles = fetch_by_browser([url1, url2], wait=30)
     
     items=json.loads(soups[1].text)['statuses']
     articles = soups[0].find_all('article')
