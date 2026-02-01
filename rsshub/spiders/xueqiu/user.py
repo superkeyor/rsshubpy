@@ -37,6 +37,7 @@ def ctx(id='', category=''):
                 content=main_content.find('div', class_='content--description').find('div').decode_contents()
             else:
                 content=item['description']
+            content=re.sub(r'<br>(?!<br>)', '<br><br>', content) # easier reading
             # 回复<a href="https://xueqiu.com/n/持股待涨养家糊口" target="_blank">@持股待涨养家糊口</a>: 
             content=re.sub(r'回复<a href="https://xueqiu\.com/n/[^"]*"[^>]*>@[^<]*</a>:\s*', '', content)
             content=re.sub(r'//<a href="https://xueqiu\.com[^"]*"[^>]*>(@[^<]*)</a>:', r'//\1<br>', content)
@@ -54,9 +55,9 @@ def ctx(id='', category=''):
                 flink = domain + fblock.find('a', class_='fake-anchor').get('href')
                 fname = fblock.find('span', class_='user-name').get_text(strip=True).lstrip('@')
                 # Get forwarded content
-                if fblock.find('div', class_='timeline__item__forward__title'):
-                    ftitle = fblock.find('div', class_='timeline__item__forward__title').text.strip()
-                if ftitle: ftitle = f"<b>{ftitle} </b>"
+                if fblock.find(class_='timeline__item__forward__title'):
+                    ftitle = fblock.find(class_='timeline__item__forward__title').text.strip()
+                if ftitle: ftitle = f"{ftitle}<br>"
                 if fblock.find('div', class_='content--detail'):
                     fcontent = fblock.find('div', class_='content--detail').find('div').decode_contents()
                 elif fblock.find('div', class_='content--description'):
@@ -103,10 +104,9 @@ def ctx(id='', category=''):
             
             content += cimages
             content=content.replace('//@', '<br><br>💬 ')
-            content=re.sub(r'<br>(?!<br>)', '<br><br>', content) # easier reading
             content=f"💭 {post['author']} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {icomment} {ilike}<br>{content}<br><br>"
             quote=f"<a href=\"{flink}\" target=\"_blank\">🔄 {fname}<br>{ftitle}{fcontent}</a>{fimages}<br><br>" if fname else ""
-            
+
             post['description'] = f'{content}{quote}'
             post['description'] += f'<div align="right"><a href="{post["link"]}" target="_blank">阅读原文</a></div>'
             
