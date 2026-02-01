@@ -37,7 +37,7 @@ def ctx(id='', category=''):
                 content=main_content.find('div', class_='content--description').find('div').decode_contents()
             else:
                 content=item['description']
-            content=re.sub(r'<br>(?!<br>)', '<br><br>', content) # easier reading
+            content=re.sub(r'<br\s*/?\s*>(?!<br)', '<br><br>', content) # easier reading
             # 回复<a href="https://xueqiu.com/n/持股待涨养家糊口" target="_blank">@持股待涨养家糊口</a>: 
             content=re.sub(r'回复<a href="https://xueqiu\.com/n/[^"]*"[^>]*>@[^<]*</a>:\s*', '', content)
             content=re.sub(r'//<a href="https://xueqiu\.com[^"]*"[^>]*>(@[^<]*)</a>:', r'//\1<br>', content)
