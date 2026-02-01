@@ -48,29 +48,30 @@ def ctx(id='', category=''):
                 post['title'] = f"{post['author']}: Re:{title[1].split('<br>')[0][:10]} {BeautifulSoup(title[0],'lxml').text[:20]}"
 
             # Check for forwarded blockquote
-            flink = fname = fcontent = fimages = ''
+            flink = fname = ftitle = fcontent = fimages = ''
             fblock = article.find('blockquote', class_='timeline__item__forward')
             if fblock:
                 flink = domain + fblock.find('a', class_='fake-anchor').get('href')
                 fname = fblock.find('span', class_='user-name').get_text(strip=True).lstrip('@')
                 # Get forwarded content
+                if fblock.find('div', class_='timeline__item__forward__title'):
+                    ftitle = fblock.find('div', class_='timeline__item__forward__title').text.strip()
+                if ftitle: ftitle = f"<b>{ftitle} </b>"
                 if fblock.find('div', class_='content--detail'):
                     fcontent = fblock.find('div', class_='content--detail').find('div').decode_contents()
                 elif fblock.find('div', class_='content--description'):
                     fcontent = fblock.find('div', class_='content--description').find('div').decode_contents()
                 else:
                     fcontent = item['retweeted_status']['text']
-                
-                # Get images from nested blockquote
-                images_block = fblock.find('blockquote', class_='status__images')
-                if images_block:
-                    for img in images_block.find_all('img'):
-                        src = img.get('data-src')
-                        if src:
-                            if src.startswith('//'):
-                                src = 'https:' + src
+                # Get images
+                for img in fblock.find_all('img'):
+                    # try data-src first then src
+                    src = img.get('data-src') or img.get('src')
+                    if src:
+                        # images not avatar and outside fcontent
+                        if src.startswith('http') and (src not in fcontent):
                             fimages += f'<a href="{src}" target="_blank"><img src="{src}" width="200"></a>'
-                    fimages += '<br><br>'
+                if fimages: fimages = f'<br>{fimages}'  # append images after content
             
             # Get stats from footer
             icomment=ilike=''
@@ -92,7 +93,7 @@ def ctx(id='', category=''):
             
             content=content.replace('//@', '<br><br>💬 ')
             content=f"💭 {post['author']} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {icomment} {ilike}<br>{content}<br><br>"
-            quote=f"<a href=\"{flink}\" target=\"_blank\">🔄 {fname}<br>{fcontent}</a><br>{fimages}" if fname else ""
+            quote=f"<a href=\"{flink}\" target=\"_blank\">🔄 {fname}<br>{ftitle}{fcontent}</a>{fimages}<br><br>" if fname else ""
 
             post['description'] = f'{content}{quote}'
             post['description'] += f'<div align="right"><a href="{post["link"]}" target="_blank">阅读原文</a></div>'
