@@ -54,11 +54,12 @@ def ctx(id='', category=''):
                 flink = domain + fblock.find('a', class_='fake-anchor').get('href')
                 fname = fblock.find('span', class_='user-name').get_text(strip=True).lstrip('@')
                 # Get forwarded content
-                content_div = fblock.find('div', class_='content--description')
-                if content_div:
-                    inner_div = content_div.find('div')
-                    if inner_div:
-                        fcontent = inner_div.decode_contents()
+                if fblock.find('div', class_='content--detail'):
+                    fcontent = fblock.find('div', class_='content--detail').find('div').decode_contents()
+                elif fblock.find('div', class_='content--description'):
+                    fcontent = fblock.find('div', class_='content--description').find('div').decode_contents()
+                else:
+                    fcontent = item['retweeted_status']['text']
                 
                 # Get images from nested blockquote
                 images_block = fblock.find('blockquote', class_='status__images')
@@ -90,8 +91,8 @@ def ctx(id='', category=''):
                 ilike=f"↑{stats[2]}" if stats[2]>0 else ""
             
             content=content.replace('//@', '<br><br>💬 ')
-            content=f"💭 {post['author']} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {icomment} {ilike}<br>{content}<br><br>"
-            quote=f"🔄 {fname}<br><a href=\"{flink}\" target=\"_blank\">{fcontent}</a><br>{fimages}" if fname else ""
+            content=f"💭 {post['author']} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {icomment} {ilike}<br>{content}<br><br>"
+            quote=f"<a href=\"{flink}\" target=\"_blank\">🔄 {fname}<br>{fcontent}</a><br>{fimages}" if fname else ""
 
             post['description'] = f'{content}{quote}'
             post['description'] += f'<div align="right"><a href="{post["link"]}" target="_blank">阅读原文</a></div>'

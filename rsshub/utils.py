@@ -55,7 +55,7 @@ def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None, wai
     # https://nowsecure.nl/#relax   https://bot.sannysoft.com
     # to update profile, run the following in ipython, then overwrite the profile folder:
     #   ipython
-    #   from rsshub.utils import fetch_by_browser; fetch_by_browser()
+    #   from rsshub.utils import fetch_by_browser; fetch_by_browser(url)
     import os, time
 
     def is_ipython_interactive():
