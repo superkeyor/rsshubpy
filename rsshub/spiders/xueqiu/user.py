@@ -69,8 +69,8 @@ def ctx(id='', category=''):
                     src = img.get('data-src') or img.get('src')
                     if src:
                         # images not avatar and outside fcontent
-                        if src.startswith('http') and (src not in fcontent):
-                            fimages += f'<a href="{src}" target="_blank"><img src="{src}" width="200"></a>'
+                        if src.startswith('http') and (src.split("!")[0] not in fcontent):
+                            fimages += f'<a href="{src}" target="_blank"><center><img src="{src}"></center></a>'
                 if fimages: fimages = f'<br>{fimages}'  # append images after content
             
             # Get stats from footer
