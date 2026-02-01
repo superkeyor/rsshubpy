@@ -11,81 +11,85 @@ import re, json, os
 
 domain = 'https://xueqiu.com'
 
-def parse_html_content(html_content):
-    soup = BeautifulSoup(html_content, 'lxml')
-    def extract_content(element):
-        result = []
-        for child in element.children:
-            if isinstance(child, str):
-                result.append(child)
-            elif child.name == 'a':
-                href = child.get('href', '')
-                if 'xueqiu.com' in href:
-                    # Replace xueqiu links with just their text
-                    result.append(child.get_text())
-                else:
-                    # Keep non-xueqiu links as HTML
-                    result.append(str(child))
-            else:
-                # Recursively process other tags
-                result.extend(extract_content(child))
-        return result
-    result = ''.join(extract_content(soup))
-    return result.replace("$","")  # replace $ to remove stock symbol link
-
-def parse_conversation(text):
-    # Split by '//' to separate different comments
-    parts = text.split('//')
-    result = []
-    for part in parts:
-        # Remove "回复@username:" pattern and extract the actual content
-        match = re.match(r'@([^:]+):\s*(?:回复@[^:]+:\s*)?(.*)', part.strip())
-        if match:
-            username = '# ' + match.group(1).strip()
-            content = match.group(2).strip()
-            result.append(username+'<br>'+content+'<br><br>')
-    return result[::-1]
-
-def parse_picture(pic_urls, pic_sizes):
-    pics_html = ''
-    # pic_urls: 'https://xqimg.imedao.com/19c0bc53b0a3e3343faf13d5.png,https://xqimg.imedao.com/19c0bc53dbb3ea2c3fd615ab.png,https://xqimg.imedao.com/19c0bc53fbd3fe813fe363b8.png'
-    # pic_sizes: [{'width': 550, 'height': 304}, {'width': 550, 'height': 275}, {'width': 550, 'height': 304}]
-    if pic_urls:
-        pic_urls = pic_urls if type(pic_urls) is list else pic_urls.split(',')
-        for pic_url, size in zip(pic_urls, pic_sizes):
-            pics_html += f'<a href="{pic_url}" target="_blank"><img src="{pic_url}" width="{size["width"]//2}" height="{size["height"]//2}"></a>'
-        pics_html += '<br><br>'
-    return pics_html
-
 def ctx(id='', category=''):
     # 10:'全部'  0:'原发布'  2:'长文'  4:'问答'  9:'热门'  11:'交易'
     url1 = f"{domain}/u/{id}" # set cookie first
     url2 = f"{domain}/v4/statuses/user_timeline.json?user_id={id}&type={category}"
-    soup, source, url, title = fetch_by_browser([url1, url2], wait=10)
-    items=json.loads(soup.text)['statuses']
+    soups, sources, urls, titles = fetch_by_browser([url1, url2], wait=10)
     
+    items=json.loads(soups[1].text)['statuses']
+    articles = soups[0].find_all('article')
     posts = []
-    for item in items:
+    for item, article in zip(items, articles):
         post = {}
+
         post['author'] = item['user']['screen_name']
         post['link'] = f"{domain}/{item['user_id']}/{item['id']}"
         post['id'] = post['link']
         post['pubDate'] = arrow.get(item['created_at']).isoformat()
-        text = parse_html_content(item['description'])
-        post['title'] = f"{post['author']}: {text[:20]}"
-        
-        post['description'] = ''.join(parse_conversation(f"@{post['author']}: {text}"))
-        post['description'] += parse_picture(item['pic'], item['pic_sizes']) # add pictures if any
-        
-        if item['retweeted_status']:
-            retweet = item['retweeted_status']
-            retweet_author = retweet['user']['screen_name']
-            retweet_link = f"{domain}/{retweet['user_id']}/{retweet['id']}"
-            retweet_title = retweet['title']
-            retweet_text = parse_html_content(retweet['description']) + '<br><br>'
-            retweet_text += parse_picture(retweet['pic'], retweet['pic_sizes'])
-            post['description'] = f"# {retweet_author}<br><a href='{retweet_link}' target='_blank'>🔄</a>{retweet_title} {retweet_text}" + post['description']
 
+        # inner html
+        if article.find('div', class_='content--description'):
+            content=article.find('div', class_='content--description').find('div').decode_contents()
+        else:
+            content=item['description']
+        # 回复<a href="https://xueqiu.com/n/持股待涨养家糊口" target="_blank">@持股待涨养家糊口</a>: 
+        content=re.sub(r'回复<a href="https://xueqiu\.com/n/[^"]*"[^>]*>@[^<]*</a>:\s*', '', content)
+        content=re.sub(r'//<a href="https://xueqiu\.com[^"]*"[^>]*>(@[^<]*)</a>:', r'//\1<br>', content)
+        
+        title=content.split("//@")
+        if len(title)==1:
+            post['title'] = f"{post['author']}: {BeautifulSoup(title[0],'lxml').text[:20]}"
+        else:
+            post['title'] = f"{post['author']}: Re:{title[1].split('<br>')[0][:10]} {BeautifulSoup(title[0],'lxml').text[:20]}"
+
+        # Check for forwarded blockquote
+        flink = fname = fcontent = fimages = ''
+        fblock = article.find('blockquote', class_='timeline__item__forward')
+        if fblock:
+            flink = domain + fblock.find('a', class_='fake-anchor').get('href')
+            fname = fblock.find('span', class_='user-name').get_text(strip=True).lstrip('@')
+            # Get forwarded content
+            content_div = fblock.find('div', class_='content--description')
+            if content_div:
+                inner_div = content_div.find('div')
+                if inner_div:
+                    fcontent = inner_div.decode_contents()
+            
+            # Get images from nested blockquote
+            images_block = fblock.find('blockquote', class_='status__images')
+            if images_block:
+                for img in images_block.find_all('img'):
+                    src = img.get('data-src')
+                    if src:
+                        if src.startswith('//'):
+                            src = 'https:' + src
+                        fimages += f'<a href="{src}" target="_blank"><img src="{src}" width="200"></a>'
+                fimages += '<br><br>'
+        
+        # Get stats from footer
+        icomment=ilike=''
+        footer = article.find('div', class_='timeline__item__ft--other')
+        if footer:
+            stats = []
+            controls = footer.find_all('a', class_='timeline__item__control')
+            for ctrl in controls:
+                span = ctrl.find('span')
+                if span:
+                    text = span.get_text(strip=True)
+                    if text.isdigit():
+                        stats.append(int(text))
+                    else:
+                        stats.append(0)
+            # forward, comment, like, favorite, complain
+            icomment=f"↴{stats[1]}" if stats[1]>0 else ""
+            ilike=f"↑{stats[2]}" if stats[2]>0 else ""
+        
+        content=content.replace('//@', '<br><br>💬')
+        content=f"💬{post['author']} {icomment} {ilike}<br>{content}<br><br>"
+        quote=f"🔄{fname}<br><a href=\"{flink}\" target=\"_blank\">{fcontent}</a><br>{fimages}" if fname else ""
+
+        post['description'] = f'{content}{quote}'
         post['description'] += f'<div align="right"><a href="{post["link"]}" target="_blank">阅读原文</a></div>'
         posts.append(post)
 

@@ -102,25 +102,27 @@ def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None, wai
             undetectable=True, uc_cdp_events=True, driver_version="keep", 
             incognito=False, mobile=False, disable_csp=True, ad_block=True, 
             user_data_dir=user_data_dir) as sb:
-        if type(url) is not list:
-            sb.activate_cdp_mode(url)
-            # sb.wait(wait)  # give some time for contents to load?
-            time.sleep(wait)
-        else:
-            # use first url to set up cookie etc
-            sb.activate_cdp_mode(url[0])
-            time.sleep(wait)
-            for u in url[1:]:
+        soups, sources, urls, titles = [], [], [], []
+        url = [url] if type(url) is not list else url
+        for i, u in enumerate(url):
+            if i == 0:
+                sb.activate_cdp_mode(u)
+            else:
                 sb.cdp.open_new_tab(u)
-                time.sleep(wait)
-            sb.cdp.switch_to_newest_tab()
-        source = sb.get_page_source()
-        soup = BeautifulSoup(source, "lxml")
-        url = sb.get_current_url()
-        title = sb.get_page_title()
+                sb.cdp.switch_to_newest_tab()
+            # wait for page to load?
+            time.sleep(wait)
+            source = sb.get_page_source()
+            sources.append(source)
+            soups.append(BeautifulSoup(source, "lxml"))
+            urls.append(sb.get_current_url())
+            titles.append(sb.get_page_title())
         # n(next), s(step), c(continue), q(quit)
         if DEBUG: import pdb; pdb.set_trace()
-        return soup, source, url, title
+        if len(url)==1:
+            return soups[0], sources[0], urls[0], titles[0]
+        else:
+            return soups, sources, urls, titles
 
 async def fetch_by_puppeteer(url):
     try:
