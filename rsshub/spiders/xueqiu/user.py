@@ -90,7 +90,7 @@ def ctx(id='', category=''):
                 ilike=f"↑{stats[2]}" if stats[2]>0 else ""
             
             content=content.replace('//@', '<br><br>💬 ')
-            content=f"💭 {post['author']} {icomment} {ilike}<br>{content}<br><br>"
+            content=f"💭 {post['author']} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {icomment} {ilike}<br>{content}<br><br>"
             quote=f"🔄 {fname}<br><a href=\"{flink}\" target=\"_blank\">{fcontent}</a><br>{fimages}" if fname else ""
 
             post['description'] = f'{content}{quote}'
