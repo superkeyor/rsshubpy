@@ -64,6 +64,7 @@ def ctx(id='', category=''):
                     fcontent = fblock.find('div', class_='content--description').find('div').decode_contents()
                 else:
                     fcontent = item['retweeted_status']['text']
+                fcontent = re.sub(r'//<a href="https://xueqiu\.com[^"]*"[^>]*>(@[^<]*)</a>:', r'//\1<br>', fcontent)
                 # Get images
                 for img in fblock.find_all('img'):
                     # try data-src first then src
