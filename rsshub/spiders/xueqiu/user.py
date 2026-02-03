@@ -13,6 +13,7 @@ domain = 'https://xueqiu.com'
 
 def ctx(id='', category=''):
     # 10:'全部'  0:'原发布'  2:'长文'  4:'问答'  9:'热门'  11:'交易'
+    # id='1247347556'; category='10'
     url1 = f"{domain}/u/{id}" # set cookie first
     url2 = f"{domain}/v4/statuses/user_timeline.json?user_id={id}&type={category}"
     soups, sources, urls, titles = fetch_by_browser([url1, url2], wait=30)
@@ -49,11 +50,11 @@ def ctx(id='', category=''):
                 post['title'] = f"{post['author']}: Re:{title[1].split('<br>')[0][:10]} {BeautifulSoup(title[0],'lxml').text[:20]}"
 
             # Check for forwarded blockquote
-            flink = fname = ftitle = fcontent = fimages = ''
+            flink = fuser = ftitle = fcontent = fimages = ''
             fblock = article.find('blockquote', class_='timeline__item__forward')
             if fblock:
                 flink = domain + fblock.find('a', class_='fake-anchor').get('href')
-                fname = fblock.find('span', class_='user-name').get_text(strip=True).lstrip('@')
+                fuser = fblock.find('span', class_='user-name').get_text(strip=True).lstrip('@')
                 # Get forwarded content
                 if fblock.find(class_='timeline__item__forward__title'):
                     ftitle = fblock.find(class_='timeline__item__forward__title').text.strip()
@@ -64,7 +65,7 @@ def ctx(id='', category=''):
                     fcontent = fblock.find('div', class_='content--description').find('div').decode_contents()
                 else:
                     fcontent = item['retweeted_status']['text']
-                fcontent = re.sub(r'//<a href="https://xueqiu\.com[^"]*"[^>]*>(@[^<]*)</a>:', r'//\1<br>', fcontent)
+                fcontent = re.sub(r'<a href="https://xueqiu\.com[^"]*"[^>]*>([^<]*)</a>', r'\1', fcontent)
                 # Get images
                 for img in fblock.find_all('img'):
                     # try data-src first then src
@@ -106,7 +107,7 @@ def ctx(id='', category=''):
             content += cimages
             content=content.replace('//@', '<br><br>💬 ')
             content=f"💭 {post['author']} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {icomment} {ilike}<br>{content}<br><br>"
-            quote=f"<a href=\"{flink}\" target=\"_blank\">🔄 {fname}<br>{ftitle}{fcontent}</a>{fimages}<br><br>" if fname else ""
+            quote=f"<a href=\"{flink}\" target=\"_blank\">🔄 {fuser}</a><br>{ftitle}{fcontent}{fimages}<br><br>" if fuser else ""
 
             post['description'] = f'{content}{quote}'
             post['description'] += f'<div align="right"><a href="{post["link"]}" target="_blank">阅读原文</a></div>'
