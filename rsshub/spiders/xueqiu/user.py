@@ -38,7 +38,11 @@ def ctx(id='', category=''):
                 content=main_content.find('div', class_='content--description').find('div').decode_contents()
             else:
                 content=item['description']
-            content=re.sub(r'<br\s*/?\s*>(?!<br)', '<br><br>', content) # easier reading
+            
+            # count total <br, if too many then replace single with double
+            br_count = len(re.findall(r'<br\s*/?\s*>', content))
+            if br_count > 5:
+                content=re.sub(r'<br\s*/?\s*>(?!<br)', '<br><br>', content) # easier reading
             # 回复<a href="https://xueqiu.com/n/持股待涨养家糊口" target="_blank">@持股待涨养家糊口</a>: 
             content=re.sub(r'回复<a href="https://xueqiu\.com/n/[^"]*"[^>]*>@[^<]*</a>:\s*', '', content)
             content=re.sub(r'//<a href="https://xueqiu\.com[^"]*"[^>]*>(@[^<]*)</a>:', r'//\1<br>', content)
@@ -65,6 +69,10 @@ def ctx(id='', category=''):
                     fcontent = fblock.find('div', class_='content--description').find('div').decode_contents()
                 else:
                     fcontent = item['retweeted_status']['text']
+                # count total <br, if too many then replace single with double
+                br_count = len(re.findall(r'<br\s*/?\s*>', fcontent))
+                if br_count > 5:
+                    fcontent=re.sub(r'<br\s*/?\s*>(?!<br)', '<br><br>', fcontent) # easier reading
                 fcontent = re.sub(r'<a href="https://xueqiu\.com[^"]*"[^>]*>([^<]*)</a>', r'\1', fcontent)
                 # Get images
                 for img in fblock.find_all('img'):
