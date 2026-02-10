@@ -80,9 +80,9 @@ def parse(post):
     content=''; op=authors[0]
     for i, a, c in zip(range(len(authors)), authors, contents):
         if a==op:
-            content += f"#{i+1}: <i>{a} (op)</i> <br>{c}"
+            content += f"#{i+1}: <i>{a} (op)</i> <br>{c}<br>"
         else:
-            content += f"#{i+1}: <i>{a}</i> <br>{c}"
+            content += f"#{i+1}: <i>{a}</i> <br>{c}<br>"
     content += f'<div align="right"><a href="{link}" target="_blank">阅读原文</a></div>'
     
     item = {}
