@@ -67,7 +67,8 @@ def parse(post):
         for b in soup.find_all('blockquote'):
             b.decompose()
 
-        contents.extend(soup.find_all('div',class_="content"))
+        # contents.extend(soup.find_all('div',class_="content"))
+        contents.extend([content_div.decode_contents().replace('\n','').strip() for content_div in soup.find_all('div', class_="content")])
         # username-coloured for admin
         authors.extend([u.find('span',class_=["username", "username-coloured"]).text for u in soup.find_all('div',class_="postbody")])
     

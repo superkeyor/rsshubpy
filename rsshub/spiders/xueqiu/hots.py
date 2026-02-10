@@ -33,6 +33,7 @@ def ctx(category=''):
             post['title']=post['author'] + ": " + soup.text.replace("$","")[:20]
         else:
             post['title']=post['author'] + ": " + post['title']
+        post['title'] = post['title'].replace("回复@","Re:")
         
         if ( not regex_match(post['author'], blocker['xueqiu']['author']) ) and \
            ( not regex_match(post['title'], blocker['xueqiu']['title']) ) and \
@@ -42,7 +43,17 @@ def ctx(category=''):
         for img in soup.find_all('img', src=lambda x: 'emoji' in x):
             # Replace the height attribute with a smaller value
             img['height'] = 18; img['width'] = 18;
-        post['description'] = str(soup) + f'<div align="right"><a href="{post["link"]}" target="_blank">阅读原文</a></div>'
+        
+        content =str(soup)
+        # count total <br, if too many then replace single with double
+        br_count = len(re.findall(r'<br\s*/?\s*>', content))
+        if br_count > 2:
+            content=re.sub(r'<br\s*/?\s*>(?!<br)', '<br><br>', content) # easier reading
+        # 回复<a href="https://xueqiu.com/n/持股待涨养家糊口" target="_blank">@持股待涨养家糊口</a>: 
+        content=re.sub(r'回复<a href="https://xueqiu\.com/n/[^"]*"[^>]*>@[^<]*</a>:\s*', '', content)
+        content=re.sub(r'//<a href="https://xueqiu\.com[^"]*"[^>]*>(@[^<]*)</a>:', r'//\1<br>', content) 
+        content=re.sub(r'<a href="https://xueqiu\.com[^"]*"[^>]*>([^<]*)</a>', r'\1', content)
+        post['description'] = content + f'<div align="right"><a href="{post["link"]}" target="_blank">阅读原文</a></div>'
         
     return {
         'title': "雪球",
