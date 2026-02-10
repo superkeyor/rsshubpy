@@ -47,7 +47,7 @@ def ctx(category=''):
         content =str(soup)
         # count total <br, if too many then replace single with double
         br_count = len(re.findall(r'<br\s*/?\s*>', content))
-        if br_count > 2:
+        if br_count > 1:
             content=re.sub(r'<br\s*/?\s*>(?!<br)', '<br><br>', content) # easier reading
         # 回复<a href="https://xueqiu.com/n/持股待涨养家糊口" target="_blank">@持股待涨养家糊口</a>: 
         content=re.sub(r'回复<a href="https://xueqiu\.com/n/[^"]*"[^>]*>@[^<]*</a>:\s*', '', content)

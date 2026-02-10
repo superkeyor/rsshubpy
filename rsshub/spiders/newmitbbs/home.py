@@ -68,16 +68,20 @@ def parse(post):
             b.decompose()
 
         # contents.extend(soup.find_all('div',class_="content"))
-        contents.extend([content_div.decode_contents().replace('\n','').strip() for content_div in soup.find_all('div', class_="content")])
+        for content_div in soup.find_all('div', class_="content"):
+            for p in content_div.find_all('p'):
+                p.insert_after(soup.new_tag('br')) # convert p to br
+                p.unwrap()
+            contents.append(content_div.decode_contents().replace('\n', '').strip())
         # username-coloured for admin
         authors.extend([u.find('span',class_=["username", "username-coloured"]).text for u in soup.find_all('div',class_="postbody")])
     
     content=''; op=authors[0]
     for i, a, c in zip(range(len(authors)), authors, contents):
         if a==op:
-            content += f"#{i+1}: <i>{a} (op)</i> {c}<br>"
+            content += f"#{i+1}: <i>{a} (op)</i> <br>{c}<br>"
         else:
-            content += f"#{i+1}: <i>{a}</i> {c}<br>"
+            content += f"#{i+1}: <i>{a}</i> <br>{c}<br>"
     content += f'<div align="right"><a href="{link}" target="_blank">阅读原文</a></div>'
     
     item = {}
