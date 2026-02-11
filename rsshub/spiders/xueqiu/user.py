@@ -11,6 +11,17 @@ import re, json, os
 
 domain = 'https://xueqiu.com'
 
+def avg_text_len_between_br(content):
+    """
+    Calculate average visible text length between <br> tags.
+    For easier reading: if average text segment between <br> tags is long enough, double all single <br>.
+    """
+    segments = re.split(r'<br\s*/?\s*>', content)
+    if len(segments) > 1:
+        visible_lengths = [len(re.sub(r'<[^>]+>', '', seg)) for seg in segments]
+        return sum(visible_lengths) / len(visible_lengths)
+    return 0
+
 def ctx(id='', category=''):
     # 10:'全部'  0:'原发布'  2:'长文'  4:'问答'  9:'热门'  11:'交易'
     # id='1247347556'; category='10'
@@ -39,9 +50,7 @@ def ctx(id='', category=''):
             else:
                 content=item['description']
             
-            # count total <br, if too many then replace single with double
-            br_count = len(re.findall(r'<br\s*/?\s*>', content))
-            if br_count > 1:
+            if avg_text_len_between_br(content) > 22:
                 content=re.sub(r'<br\s*/?\s*>(?!<br)', '<br><br>', content) # easier reading
             # 回复<a href="https://xueqiu.com/n/持股待涨养家糊口" target="_blank">@持股待涨养家糊口</a>: 
             content=re.sub(r'回复<a href="https://xueqiu\.com/n/[^"]*"[^>]*>@[^<]*</a>:\s*', '', content)
@@ -70,10 +79,8 @@ def ctx(id='', category=''):
                     fcontent = fblock.find('div', class_='content--description').find('div').decode_contents()
                 else:
                     fcontent = item['retweeted_status']['text']
-                # count total <br, if too many then replace single with double
-                br_count = len(re.findall(r'<br\s*/?\s*>', fcontent))
-                if br_count > 1:
-                    fcontent=re.sub(r'<br\s*/?\s*>(?!<br)', '<br><br>', fcontent) # easier reading
+                if avg_text_len_between_br(fcontent) > 22:
+                    fcontent=re.sub(r'<br\s*/?\s*>(?!<br)', '<br><br>', fcontent)
                 fcontent = re.sub(r'<a href="https://xueqiu\.com[^"]*"[^>]*>([^<]*)</a>', r'\1', fcontent)
                 # Get images
                 for img in fblock.find_all('img'):

@@ -5,6 +5,20 @@ from bs4 import BeautifulSoup
 from rsshub.utils import DEFAULT_HEADERS, extract_html
 import re, json, os
 
+from opencc import OpenCC
+cc = OpenCC('t2s')  # t2s = Traditional to Simplified
+
+def avg_text_len_between_br(content):
+    """
+    Calculate average visible text length between <br> tags.
+    For easier reading: if average text segment between <br> tags is long enough, double all single <br>.
+    """
+    segments = re.split(r'<br\s*/?\s*>', content)
+    if len(segments) > 1:
+        visible_lengths = [len(re.sub(r'<[^>]+>', '', seg)) for seg in segments]
+        return sum(visible_lengths) / len(visible_lengths)
+    return 0
+
 def ctx(category=''):
     feed_url = f"http://192.168.1.2:1200/xueqiu/hots"
     res = requests.get(feed_url,headers=DEFAULT_HEADERS,verify=False)
@@ -33,7 +47,7 @@ def ctx(category=''):
             post['title']=post['author'] + ": " + soup.text.replace("$","")[:20]
         else:
             post['title']=post['author'] + ": " + post['title']
-        post['title'] = post['title'].replace("回复@","Re:")
+        post['title'] = post['title'].replace("回复@","Re ")
         
         if ( not regex_match(post['author'], blocker['xueqiu']['author']) ) and \
            ( not regex_match(post['title'], blocker['xueqiu']['title']) ) and \
@@ -45,16 +59,16 @@ def ctx(category=''):
             img['height'] = 18; img['width'] = 18;
         
         content =str(soup)
-        # count total <br, if too many then replace single with double
-        br_count = len(re.findall(r'<br\s*/?\s*>', content))
-        if br_count > 1:
-            content=re.sub(r'<br\s*/?\s*>(?!<br)', '<br><br>', content) # easier reading
+        content = cc.convert(content)  # 繁转简, e.g., 管我财
+        if avg_text_len_between_br(content) > 22:
+            content=re.sub(r'<br\s*/?\s*>(?!<br)', '<br><br>', content)
         # 回复<a href="https://xueqiu.com/n/持股待涨养家糊口" target="_blank">@持股待涨养家糊口</a>: 
         content=re.sub(r'回复<a href="https://xueqiu\.com/n/[^"]*"[^>]*>@[^<]*</a>:\s*', '', content)
         content=re.sub(r'//<a href="https://xueqiu\.com[^"]*"[^>]*>(@[^<]*)</a>:', r'//\1<br>', content) 
         content=re.sub(r'<a href="https://xueqiu\.com[^"]*"[^>]*>([^<]*)</a>', r'\1', content)
         content=content.replace('//@', '<br><br>💬 ')
-        content=f"💭 {post['author']}<br>{content}<br><br>"
+        content=re.sub(r'(<p[^>]*>)', r'\1' + f"💭 {post['author']}<br>", content, count=1)
+        content=f"{content}<br>"
         post['description'] = content + f'<div align="right"><a href="{post["link"]}" target="_blank">阅读原文</a></div>'
         
     return {
