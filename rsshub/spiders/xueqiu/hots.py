@@ -55,7 +55,7 @@ def ctx(category=''):
         ilike=f"↑{item['like_count']}" if item['like_count']>0 else ""
         author_info = f"💭 {post['author']} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {icomment} {ilike}"
         
-        content=content.replace('//@', '<br><br>💬 ')
+        content=content.replace('//@', '<br><br>🔃 ')
         # starts with <p> (if there is <p>, likely starts with <p>, or no <p> at all)
         if re.search(r'<p[^>]*>', content):
             content=re.sub(r'(<p[^>]*>)', r'\1' + f"{author_info}<br>", content, count=1)
@@ -75,7 +75,7 @@ def ctx(category=''):
                 ccoment = cc.convert(item['excellent_comments'][0]['text'])
                 if avg_text_len_between_br(ccoment) > 22:
                     ccoment=re.sub(r'<br\s*/?\s*>(?!<br)', '<br><br>', ccoment) # easier reading
-                comment = f"⭐ {cauthor}<br>{ccoment}<br><br>"
+                comment = f"💬 {cauthor}<br>{ccoment}<br><br>"
             content = content + comment
         # KeyError: 'excellent_comments'
         except: 

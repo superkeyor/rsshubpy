@@ -126,7 +126,7 @@ def ctx(id='', category=''):
                 if cimages: cimages = f'<br>{cimages}'  # append images after content
             
             content += cimages
-            content=content.replace('//@', '<br><br>💬 ')
+            content=content.replace('//@', '<br><br>🔃 ')
             content=f"💭 {post['author']} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {icomment} {ilike}<br>{content}<br><br>"
             quote=f"<a href=\"{flink}\" target=\"_blank\">🔄 {fuser}</a><br>{ftitle}{fcontent}{fimages}<br><br>" if fuser else ""
 
