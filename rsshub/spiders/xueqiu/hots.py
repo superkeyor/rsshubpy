@@ -73,7 +73,9 @@ def ctx(category=''):
             if len(item['excellent_comments']) > 0:
                 cauthor = cc.convert(item['excellent_comments'][0]['user']['screen_name'])
                 ccoment = cc.convert(item['excellent_comments'][0]['text'])
-                comment = f"💬 {cauthor}<br>{ccoment}<br><br>"
+                if avg_text_len_between_br(ccoment) > 22:
+                    ccoment=re.sub(r'<br\s*/?\s*>(?!<br)', '<br><br>', ccoment) # easier reading
+                comment = f"💭 {cauthor}<br>{ccoment}<br><br>"
             content = content + comment
         # KeyError: 'excellent_comments'
         except: 
