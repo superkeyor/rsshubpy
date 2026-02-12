@@ -122,8 +122,8 @@ def parse(post):
         
         # contents.extend( soup.find_all('td',itemprop="articleBody") )
         contents.extend( soup.select('td[itemprop="articleBody"], div.locked') ) # sometimes locked contents
-        thumbups.extend( [e.text for e in soup.find_all('i',id=re.compile('rec_add_\d+'))] )
-        thumbdowns.extend( [e.text for e in soup.find_all('i',id=re.compile('rec_sub_\d+'))] )
+        thumbups.extend( [e.text for e in soup.find_all('i',id=re.compile(r'rec_add_\d+'))] )
+        thumbdowns.extend( [e.text for e in soup.find_all('i',id=re.compile(r'rec_sub_\d+'))] )
     
     content=''
     op=authors[0]
