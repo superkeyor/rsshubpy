@@ -56,8 +56,8 @@ def ctx(category=''):
         author_info = f"💭 {post['author']} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {icomment} {ilike}"
         
         content=content.replace('//@', '<br><br>🔃 ')
-        # starts with <p> (if there is <p>, likely starts with <p>, or no <p> at all)
-        if re.search(r'<p[^>]*>', content):
+        # starts with <p>
+        if content.startswith('<p>'):
             content=re.sub(r'(<p[^>]*>)', r'\1' + f"{author_info}<br>", content, count=1)
         else:
             content=f"{author_info}<br>{content}"
