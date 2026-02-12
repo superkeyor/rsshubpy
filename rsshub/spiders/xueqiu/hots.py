@@ -1,3 +1,4 @@
+from pydoc import html
 import requests 
 import feedparser
 import arrow
@@ -45,6 +46,9 @@ def ctx(category=''):
         content=re.sub(r'//<a href="https://xueqiu\.com[^"]*"[^>]*>(@[^<]*)</a>:', r'//\1<br>', content)
         content=re.sub(r'<a href="https://xueqiu\.com[^"]*"[^>]*>([^<]*)</a>', r'\1', content)
         
+        # Replace emoji height attribute with a smaller value and width
+        content=re.sub(r'(<img[^>]*emoji[^>]*)\sheight="[^"]*"', r'\1 height="18" width="18"', content)
+
         title=content.split("//@")
         if len(title)==1:
             post['title'] = f"{post['author']}: {BeautifulSoup(title[0],'lxml').text.replace('$','')[:20]}"
