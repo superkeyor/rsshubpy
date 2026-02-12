@@ -5,6 +5,9 @@ from bs4 import BeautifulSoup
 from rsshub.utils import DEFAULT_HEADERS, extract_html, fetch_by_browser
 import re, json, os
 
+from opencc import OpenCC
+cc = OpenCC('t2s')  # t2s = Traditional to Simplified
+
 # https://xueqiu.com/u/1247347556
 # http://192.168.1.2:1200/xueqiu/user/1247347556
 # https://github.com/DIYgod/RSSHub/blob/master/lib/routes/xueqiu/user.ts
@@ -35,7 +38,7 @@ def ctx(id='', category=''):
     for item, article in zip(items, articles):
         post = {}
 
-        post['author'] = item['user']['screen_name']
+        post['author'] = cc.convert(item['user']['screen_name'])
         post['link'] = f"{domain}/{item['user_id']}/{item['id']}"
         post['id'] = post['link']
         post['pubDate'] = arrow.get(item['created_at']).isoformat()
@@ -49,7 +52,8 @@ def ctx(id='', category=''):
                 content=main_content.find('div', class_='content--description').find('div').decode_contents()
             else:
                 content=item['description']
-            
+            content = cc.convert(content)
+
             if avg_text_len_between_br(content) > 22:
                 content=re.sub(r'<br\s*/?\s*>(?!<br)', '<br><br>', content) # easier reading
             # 回复<a href="https://xueqiu.com/n/持股待涨养家糊口" target="_blank">@持股待涨养家糊口</a>: 
@@ -59,16 +63,16 @@ def ctx(id='', category=''):
 
             title=content.split("//@")
             if len(title)==1:
-                post['title'] = f"{post['author']}: {BeautifulSoup(title[0],'lxml').text[:20]}"
+                post['title'] = f"{post['author']}: {BeautifulSoup(title[0],'lxml').text.replace('$','')[:20]}"
             else:
-                post['title'] = f"{post['author']}: Re:{title[1].split('<br>')[0][:10]} {BeautifulSoup(title[0],'lxml').text[:20]}"
+                post['title'] = f"{post['author']}: Re:{title[1].split('<br>')[0][:10]} {BeautifulSoup(title[0],'lxml').text.replace('$','')[:20]}"
 
             # Check for forwarded blockquote
             flink = fuser = ftitle = fcontent = fimages = ''
             fblock = article.find('blockquote', class_='timeline__item__forward')
             if fblock:
                 flink = domain + fblock.find('a', class_='fake-anchor').get('href')
-                fuser = fblock.find('span', class_='user-name').get_text(strip=True).lstrip('@')
+                fuser = cc.convert(fblock.find('span', class_='user-name').get_text(strip=True).lstrip('@'))
                 # Get forwarded content
                 if fblock.find(class_='timeline__item__forward__title'):
                     ftitle = fblock.find(class_='timeline__item__forward__title').text.strip()
@@ -79,6 +83,7 @@ def ctx(id='', category=''):
                     fcontent = fblock.find('div', class_='content--description').find('div').decode_contents()
                 else:
                     fcontent = item['retweeted_status']['text']
+                fcontent = cc.convert(fcontent)
                 if avg_text_len_between_br(fcontent) > 22:
                     fcontent=re.sub(r'<br\s*/?\s*>(?!<br)', '<br><br>', fcontent)
                 fcontent = re.sub(r'<a href="https://xueqiu\.com[^"]*"[^>]*>([^<]*)</a>', r'\1', fcontent)
