@@ -46,9 +46,6 @@ def ctx(category=''):
         content=re.sub(r'//<a href="https://xueqiu\.com[^"]*"[^>]*>(@[^<]*)</a>:', r'//\1<br>', content)
         content=re.sub(r'<a href="https://xueqiu\.com[^"]*"[^>]*>([^<]*)</a>', r'\1', content)
         
-        # Replace emoji height attribute with a smaller value and width
-        content=re.sub(r'(<img[^>]*emoji[^>]*)\sheight="[^"]*"', r'\1 height="18" width="18"', content)
-
         title=content.split("//@")
         if len(title)==1:
             post['title'] = f"{post['author']}: {BeautifulSoup(title[0],'lxml').text.replace('$','')[:20]}"
@@ -84,7 +81,9 @@ def ctx(category=''):
         # KeyError: 'excellent_comments'
         except: 
             pass
-
+        
+        # Replace emoji height attribute with a smaller value and width (including comment)
+        content=re.sub(r'(<img[^>]*emoji[^>]*)\sheight="[^"]*"', r'\1 height="18" width="18"', content)
         post['description'] = content + f'<div align="right"><a href="{post["link"]}" target="_blank">阅读原文</a></div>'
         
         # print(list(os.environ.items()))
