@@ -96,7 +96,9 @@ def ctx(id='', category=''):
                         if src.startswith('http') and (src.split("!")[0] not in fcontent):
                             fimages += f'<a href="{src}" target="_blank"><center><img src="{src}"></center></a>'
                 if fimages: fimages = f'<br>{fimages}'  # append images after content
-            
+                # 但斌 Fix: if it's a video link, remove duplicated title and useless images
+                if 'https://xueqiu.com/vod/' in fcontent:
+                    ftitle=fimages=''
             # Get stats from footer
             icomment=ilike=''
             footer = article.find('div', class_='timeline__item__ft--other')
