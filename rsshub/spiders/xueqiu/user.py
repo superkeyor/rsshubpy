@@ -59,7 +59,7 @@ def ctx(id='', category=''):
             # 回复<a href="https://xueqiu.com/n/持股待涨养家糊口" target="_blank">@持股待涨养家糊口</a>: 
             content=re.sub(r'回复<a href="https://xueqiu\.com/n/[^"]*"[^>]*>@[^<]*</a>:\s*', '', content)
             content=re.sub(r'//<a href="https://xueqiu\.com[^"]*"[^>]*>(@[^<]*)</a>:', r'//\1<br>', content)
-            content=re.sub(r'<a href="https://xueqiu\.com[^"]*"[^>]*>([^<]*)</a>', r'\1', content)
+            content=re.sub(r'<a href="https://xueqiu\.com/[nS]/[^"]*"[^>]*>([^<]*)</a>', r'\1', content)
 
             title=content.split("//@")
             if len(title)==1:
@@ -86,7 +86,7 @@ def ctx(id='', category=''):
                 fcontent = cc.convert(fcontent)
                 if avg_text_len_between_br(fcontent) > 22:
                     fcontent=re.sub(r'<br\s*/?\s*>(?!<br)', '<br><br>', fcontent)
-                fcontent = re.sub(r'<a href="https://xueqiu\.com[^"]*"[^>]*>([^<]*)</a>', r'\1', fcontent)
+                fcontent = re.sub(r'<a href="https://xueqiu\.com/[nS]/[^"]*"[^>]*>([^<]*)</a>', r'\1', fcontent)
                 # Get images
                 for img in fblock.find_all('img'):
                     # try data-src first then src
