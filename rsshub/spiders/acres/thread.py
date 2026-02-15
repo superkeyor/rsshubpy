@@ -140,6 +140,18 @@ def parse(post):
         
         login_message=soup.find('div',class_="attach_nopermission")
         if login_message: login_message.decompose()
+
+        imgtip=soup.find_all('div',class_="aimg_tip")
+        if len(imgtip)>0:
+            for tip in imgtip:
+                tip.decompose()
+            for div in soup.find_all('div', class_='mbn'):
+                imgs = div.find_all('img')
+                for img in imgs:
+                    if img.has_attr('file'):
+                        file_url = img['file']
+                        img['src'] = file_url
+                        del img['file']
         
         soup = decompose_element(soup, 'div',class_="quote")
         soup = decompose_element(soup, 'font',class_="jammer")
@@ -161,6 +173,7 @@ def parse(post):
         if int(d)>0: reaction += f" ↓{d}"
         # c = str(c).replace("\n<br/>\r\n","")
         c=clean_and_combine_text(c.decode_contents().replace('\n', '').replace('\r', ''))
+        c=c.replace("</ignore_js_op><br><br>", "</ignore_js_op><br>") # break after image
         if a==op: 
             content += f"#{i+1}: <i>{a} (op)</i> {reaction} <br>{c}<br><br>"
         else:
