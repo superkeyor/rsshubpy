@@ -8,6 +8,7 @@ import re
 import arrow
 import feedparser
 
+# I do not use this script?
 domain = 'https://www.1point3acres.com/'
 
 def ctx(category=''):

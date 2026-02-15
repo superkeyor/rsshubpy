@@ -8,6 +8,7 @@ import re
 import arrow
 import feedparser
 
+# this is the one I use.
 domain = 'https://www.1point3acres.com/'
 headers = {
     "Host": "www.1point3acres.com",
@@ -74,6 +75,33 @@ def collect_all_pages(start_url, next_button_attrs):
         if p>1: break
     return soups
 
+def clean_and_combine_text(text):
+    """
+    Split text by <br> tags, remove empty lines, calculate average length,
+    and combine with appropriate number of <br> tags.
+    Args:
+        text: HTML text containing <br> or <br/> tags
+    Returns:
+        Cleaned and combined text with <br> tags
+    """
+    import re
+    # Split by both <br> and <br/>, remove any whitespace
+    lines = re.split(r'<br\s*/?\s*>', text)
+    # Keep only non-empty lines (strip whitespace first)
+    non_empty_lines = [line.strip() for line in lines if line.strip()]
+    # If no lines, return empty string
+    if not non_empty_lines:
+        return ''
+    # Calculate average length
+    total_length = sum(len(line) for line in non_empty_lines)
+    avg_length = total_length / len(non_empty_lines)
+    # Combine with appropriate separator
+    if avg_length > 22:
+        result = '<br><br>'.join(non_empty_lines)
+    else:
+        result = '<br>'.join(non_empty_lines)
+    return result
+
 def parse(post):
     link=urljoin(domain,'bbs/'+post.get('href'))
     print(link)
@@ -132,6 +160,7 @@ def parse(post):
         if int(u)>0: reaction += f" ↑{u}"
         if int(d)>0: reaction += f" ↓{d}"
         # c = str(c).replace("\n<br/>\r\n","")
+        c=clean_and_combine_text(c.decode_contents().replace('\n', '').replace('\r', ''))
         if a==op: 
             content += f"#{i+1}: <i>{a} (op)</i> {reaction} <br>{c}<br><br>"
         else:
