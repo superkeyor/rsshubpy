@@ -9,14 +9,14 @@ FROM superkeyor/python_chromium_driver:latest
 #     ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
 #     dpkg-reconfigure -f noninteractive tzdata
 
-# 设置工作目录
 WORKDIR /app
 
-# 复制应用程序代码
-COPY . .
+# copy requirements first so pip layer is cached unless requirements.txt changes
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt  # --no-cache-dir reduces image size
 
-# 安装Python依赖
-RUN pip install --no-cache-dir -r requirements.txt
+# copy remaining source files
+COPY . .
 
 # # Selenium
 # RUN apt-get update && \
