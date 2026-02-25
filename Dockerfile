@@ -32,4 +32,6 @@ COPY . .
 EXPOSE 5000
 
 # 启动应用程序
-CMD ["gunicorn", "--timeout", "600", "-b", "0.0.0.0:5000", "main:app"]
+# CMD ["gunicorn", "--timeout", "600", "-b", "0.0.0.0:5000", "main:app"]
+# prevent seleniumbase concurrency; --timeout applies to each worker, other requests will be waiting
+CMD ["gunicorn", "--workers", "1", "--threads", "1", "--timeout", "600", "-b", "0.0.0.0:5000", "main:app"]
