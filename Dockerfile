@@ -4,11 +4,6 @@
 # PIN python, chromium and driver version
 FROM superkeyor/python_chromium_driver:latest
 
-# ENV TZ=US/Central
-# RUN apt-get update && apt-get install -y tzdata && \
-#     ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
-#     dpkg-reconfigure -f noninteractive tzdata
-
 WORKDIR /app
 
 # copy requirements first so pip layer is cached unless requirements.txt changes
@@ -17,16 +12,6 @@ RUN pip install --no-cache-dir -r requirements.txt  # --no-cache-dir reduces ima
 
 # copy remaining source files
 COPY . .
-
-# # Selenium
-# RUN apt-get update && \
-#     apt-get install -y \
-#     chromium \
-#     chromium-driver \
-#     xvfb \
-#     xauth && \
-#     apt-get clean && \
-#     rm -rf /var/lib/apt/lists/*
 
 # 暴露端口
 EXPOSE 5000
