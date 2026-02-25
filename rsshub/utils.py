@@ -97,31 +97,36 @@ def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None, wai
     # https://github.com/seleniumbase/SeleniumBase/blob/master/seleniumbase/plugins/sb_manager.py
     # https://seleniumbase.io/examples/cdp_mode/ReadMe/#cdp-mode-usage
     from seleniumbase import SB
-    with SB(headless=True, headed=HEADED, maximize=True,
-            undetectable=True, uc_cdp_events=True, driver_version="keep", 
-            incognito=False, mobile=False, disable_csp=True, ad_block=True, 
-            user_data_dir=user_data_dir) as sb:
-        soups, sources, urls, titles = [], [], [], []
-        url = [url] if type(url) is not list else url
-        for i, u in enumerate(url):
-            if i == 0:
-                sb.activate_cdp_mode(u)
+    from filelock import FileLock, Timeout
+    # Create a lock file path in the temporary directory
+    CHROME_LOCK_PATH = "/tmp/seleniumbase_chrome.lock"
+    lock = FileLock(CHROME_LOCK_PATH, timeout=600)
+    with lock:
+        with SB(headless=True, headed=HEADED, maximize=True,
+                undetectable=True, uc_cdp_events=True, driver_version="keep", 
+                incognito=False, mobile=False, disable_csp=True, ad_block=True, 
+                user_data_dir=user_data_dir) as sb:
+            soups, sources, urls, titles = [], [], [], []
+            url = [url] if type(url) is not list else url
+            for i, u in enumerate(url):
+                if i == 0:
+                    sb.activate_cdp_mode(u)
+                else:
+                    sb.cdp.open_new_tab(u)
+                    sb.cdp.switch_to_newest_tab()
+                # wait for page to load?
+                time.sleep(wait)
+                source = sb.get_page_source()
+                sources.append(source)
+                soups.append(BeautifulSoup(source, "lxml"))
+                urls.append(sb.get_current_url())
+                titles.append(sb.get_page_title())
+            # n(next), s(step), c(continue), q(quit)
+            if DEBUG: import pdb; pdb.set_trace()
+            if len(url)==1:
+                return soups[0], sources[0], urls[0], titles[0]
             else:
-                sb.cdp.open_new_tab(u)
-                sb.cdp.switch_to_newest_tab()
-            # wait for page to load?
-            time.sleep(wait)
-            source = sb.get_page_source()
-            sources.append(source)
-            soups.append(BeautifulSoup(source, "lxml"))
-            urls.append(sb.get_current_url())
-            titles.append(sb.get_page_title())
-        # n(next), s(step), c(continue), q(quit)
-        if DEBUG: import pdb; pdb.set_trace()
-        if len(url)==1:
-            return soups[0], sources[0], urls[0], titles[0]
-        else:
-            return soups, sources, urls, titles
+                return soups, sources, urls, titles
 
 async def fetch_by_puppeteer(url):
     try:
