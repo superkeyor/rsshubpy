@@ -109,7 +109,7 @@ def ctx(category=''):
         if ( not blocker.match(post['author'], blocker.rules['newmitbbs']['author']) ) and \
            ( not blocker.match(post['title'], blocker.rules['newmitbbs']['title']) ) and \
            ( not blocker.match(post['description'], blocker.rules['newmitbbs']['content']) ):
-            post['title'] = f"{post['title']} ({post['author']})"
+            post['title'] = f"{post['title']} By:{post['author']}"
             filtered_posts.append(post)
 
     return {
