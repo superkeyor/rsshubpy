@@ -3,11 +3,13 @@ import requests
 import feedparser
 import arrow
 from bs4 import BeautifulSoup
-from rsshub.utils import DEFAULT_HEADERS, extract_html, fetch_by_browser
+from rsshub.utils import DEFAULT_HEADERS, extract_html, fetch_by_browser, ContentBlocker
 import re, json, os
 
 from opencc import OpenCC
 cc = OpenCC('t2s')  # t2s = Traditional to Simplified
+
+blocker=ContentBlocker()
 
 # https://github.com/DIYgod/RSSHub/blob/master/lib/routes/xueqiu/hots.ts
 domain = 'https://xueqiu.com'
@@ -86,22 +88,9 @@ def ctx(category=''):
         content=re.sub(r'(<img[^>]*emoji[^>]*)\sheight="[^"]*"', r'\1 height="18" width="18"', content)
         post['description'] = content + f'<div align="right"><a href="{post["link"]}" target="_blank">阅读原文</a></div>'
         
-        # print(list(os.environ.items()))
-        if os.getenv('FLASK_ENV') == "development": 
-            with open('rsshub/blocker.json', 'r') as file:
-                blocker = json.load(file)
-                print(blocker)
-        else:
-            blocker = requests.get("https://raw.githubusercontent.com/superkeyor/rsshub_python/refs/heads/master/rsshub/blocker.json").json()
-        def regex_match(text, keywords):
-            """Helper function to check if any of the keywords match the text using regex."""
-            for keyword in keywords:
-                if re.search(keyword, text):
-                    return True
-            return False
-        if ( not regex_match(post['author'], blocker['xueqiu']['author']) ) and \
-           ( not regex_match(post['title'], blocker['xueqiu']['title']) ) and \
-           ( not regex_match(post['description'], blocker['xueqiu']['content']) ):
+        if ( not blocker.match(post['author'], blocker.rules['xueqiu']['author']) ) and \
+           ( not blocker.match(post['title'], blocker.rules['xueqiu']['title']) ) and \
+           ( not blocker.match(post['description'], blocker.rules['xueqiu']['content']) ):
             posts.append(post)
         
     return {

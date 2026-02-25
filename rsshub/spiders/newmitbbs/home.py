@@ -1,4 +1,4 @@
-from rsshub.utils import DEFAULT_HEADERS, fetch, fetch_by_puppeteer, extract_html
+from rsshub.utils import DEFAULT_HEADERS, fetch, fetch_by_puppeteer, extract_html, ContentBlocker
 import requests 
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
@@ -9,6 +9,7 @@ import arrow
 import feedparser
 
 domain = 'https://newmitbbs.com'
+blocker=ContentBlocker()
 
 def collect_all_pages(start_url, next_button_attrs):
     """
@@ -101,12 +102,21 @@ def ctx(category=''):
     pop = soup.find('div',attrs={'id':'popular-topics-box'}).find_all('a',attrs={"class":"topictitle"})
     rec = soup.find('div',attrs={'id':'recent-recommended-topics-box'}).find_all('a',attrs={"class":"topictitle"})
     posts = list(dict.fromkeys(pop + rec))  # unique list while preserving order
+    
+    posts = list(map(parse, posts))
+    filtered_posts = []
+    for post in posts:
+        if ( not blocker.match(post['author'], blocker.rules['newmitbbs']['author']) ) and \
+           ( not blocker.match(post['title'], blocker.rules['newmitbbs']['title']) ) and \
+           ( not blocker.match(post['description'], blocker.rules['newmitbbs']['content']) ):
+            post['title'] = f"{post['title']} ({post['author']})"
+            filtered_posts.append(post)
 
     return {
         'title': '新未名空间',
         'link': domain,
         'description': '一个海外华人中文交流的论坛',
         'author': 'Jerry',
-        'items': list(map(parse, posts)) 
+        'items': filtered_posts
     }
 

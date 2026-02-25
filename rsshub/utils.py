@@ -197,4 +197,34 @@ def filter_content(items):
             content.append(item)
     return content
 
+import os
+import json
+import re
+import requests
+class ContentBlocker:
+    def __init__(self):
+        """Loads the filtering rules on initialization."""
+        if os.getenv('FLASK_ENV') == "development": 
+            with open('rsshub/blocker.json', 'r') as file:
+                self.rules = json.load(file)
+        else:
+            url = "https://raw.githubusercontent.com/superkeyor/rsshub_python/refs/heads/master/rsshub/blocker.json"
+            response = requests.get(url, timeout=10) 
+            response.raise_for_status() 
+            self.rules = response.json()
 
+    def match(self, text, specific_rules=None):
+        """Returns True if the text hits any blocked regex rule in the provided list.
+        e.g., blocker.match(post['author'], blocker.rules['xueqiu']['author'])
+        """
+        # Use the specific rules passed in, otherwise default to self.rules
+        rules_to_check = specific_rules if specific_rules is not None else self.rules
+
+        if not rules_to_check:
+            return False 
+
+        for rule in rules_to_check:
+            if re.search(rule, text):
+                return True
+                
+        return False
