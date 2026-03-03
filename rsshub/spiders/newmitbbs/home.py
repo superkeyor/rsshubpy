@@ -11,6 +11,11 @@ import feedparser
 domain = 'https://newmitbbs.com'
 blocker=ContentBlocker()
 
+def update_youtube_iframes(tag):
+    for iframe in tag.find_all('iframe', src=re.compile(r'youtube\.com|youtu\.be')):
+        if not iframe.get('referrerpolicy'):
+            iframe['referrerpolicy'] = 'strict-origin-when-cross-origin'
+
 def collect_all_pages(start_url, next_button_attrs):
     """
     Collect all pages starting from the given URL by following the "Next" button.
@@ -74,6 +79,7 @@ def parse(post):
                 p.insert_after(soup.new_tag('br')) 
                 p.insert_after(soup.new_tag('br')) # convert p to two br
                 p.unwrap()
+            update_youtube_iframes(content_div)
             contents.append(content_div.decode_contents().replace('\n', '').strip())
         # username-coloured for admin
         authors.extend([u.find('span',class_=["username", "username-coloured"]).text for u in soup.find_all('div',class_="postbody")])
@@ -109,7 +115,7 @@ def ctx(category=''):
         if ( not blocker.match(post['author'], blocker.rules['newmitbbs']['author']) ) and \
            ( not blocker.match(post['title'], blocker.rules['newmitbbs']['title']) ) and \
            ( not blocker.match(post['description'], blocker.rules['newmitbbs']['content']) ):
-            post['title'] = f"{post['title']} ({post['author']})"
+            post['title'] = f"{post['title']} <i>({post['author']})</i>"
             filtered_posts.append(post)
 
     return {
