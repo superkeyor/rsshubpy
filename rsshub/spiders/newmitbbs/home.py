@@ -13,8 +13,18 @@ blocker=ContentBlocker()
 
 def update_youtube_iframes(tag):
     for iframe in tag.find_all('iframe', src=re.compile(r'youtube\.com|youtu\.be')):
-        if not iframe.get('referrerpolicy'):
-            iframe['referrerpolicy'] = 'strict-origin-when-cross-origin'
+        iframe['referrerpolicy'] = 'strict-origin-when-cross-origin'
+        iframe['allow'] = 'accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+        iframe['sandbox'] = 'allow-scripts allow-same-origin'
+        iframe['width'] = '390'
+        iframe['height'] = '219'
+        style = iframe.get('style', '')
+        bg_match = re.search(r'background:\s*url\(([^)]+)\)[^;]*', style)
+        if bg_match:
+            bg_url = bg_match.group(1)
+            iframe['style'] = f'background:url({bg_url}) 50% 50% / cover no-repeat;'
+        elif 'style' in iframe.attrs:
+            del iframe['style']
 
 def collect_all_pages(start_url, next_button_attrs):
     """
@@ -115,7 +125,7 @@ def ctx(category=''):
         if ( not blocker.match(post['author'], blocker.rules['newmitbbs']['author']) ) and \
            ( not blocker.match(post['title'], blocker.rules['newmitbbs']['title']) ) and \
            ( not blocker.match(post['description'], blocker.rules['newmitbbs']['content']) ):
-            post['title'] = f"{post['title']} <i>({post['author']})</i>"
+            post['title'] = f"{post['author']}: {post['title']}"
             filtered_posts.append(post)
 
     return {
