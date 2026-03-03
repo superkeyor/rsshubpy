@@ -11,20 +11,22 @@ import feedparser
 domain = 'https://newmitbbs.com'
 blocker=ContentBlocker()
 
-def update_youtube_iframes(tag):
-    for iframe in tag.find_all('iframe', src=re.compile(r'youtube\.com|youtu\.be')):
-        iframe['referrerpolicy'] = 'strict-origin-when-cross-origin'
-        iframe['allow'] = 'accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
-        iframe['sandbox'] = 'allow-scripts allow-same-origin'
+def update_iframes(tag):
+    for iframe in tag.find_all('iframe'):
+        src = iframe.get('src', '')
         iframe['width'] = '390'
         iframe['height'] = '219'
-        style = iframe.get('style', '')
-        bg_match = re.search(r'background:\s*url\(([^)]+)\)[^;]*', style)
-        if bg_match:
-            bg_url = bg_match.group(1)
-            iframe['style'] = f'background:url({bg_url}) 50% 50% / cover no-repeat;'
-        elif 'style' in iframe.attrs:
-            del iframe['style']
+        if re.search(r'youtube\.com|youtu\.be', src):
+            iframe['referrerpolicy'] = 'strict-origin-when-cross-origin'
+            iframe['allow'] = 'accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+            iframe['sandbox'] = 'allow-scripts allow-same-origin'
+            style = iframe.get('style', '')
+            bg_match = re.search(r'background:\s*url\(([^)]+)\)[^;]*', style)
+            if bg_match:
+                bg_url = bg_match.group(1)
+                iframe['style'] = f'background:url({bg_url}) 50% 50% / cover no-repeat;'
+            elif 'style' in iframe.attrs:
+                del iframe['style']
 
 def collect_all_pages(start_url, next_button_attrs):
     """
@@ -89,7 +91,7 @@ def parse(post):
                 p.insert_after(soup.new_tag('br')) 
                 p.insert_after(soup.new_tag('br')) # convert p to two br
                 p.unwrap()
-            update_youtube_iframes(content_div)
+            update_iframes(content_div)
             contents.append(content_div.decode_contents().replace('\n', '').strip())
         # username-coloured for admin
         authors.extend([u.find('span',class_=["username", "username-coloured"]).text for u in soup.find_all('div',class_="postbody")])
