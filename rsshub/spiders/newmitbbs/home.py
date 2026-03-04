@@ -1,7 +1,7 @@
 from rsshub.utils import DEFAULT_HEADERS, fetch, fetch_by_puppeteer, extract_html, ContentBlocker
 import requests 
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 from datetime import datetime
 import time, random
 import re
@@ -11,22 +11,35 @@ import feedparser
 domain = 'https://newmitbbs.com'
 blocker=ContentBlocker()
 
-def update_iframes(tag):
+def update_iframes(tag, soup):
     for iframe in tag.find_all('iframe'):
         src = iframe.get('src', '')
-        iframe['width'] = '390'
-        iframe['height'] = '219'
-        if re.search(r'youtube\.com|youtu\.be', src):
-            iframe['referrerpolicy'] = 'strict-origin-when-cross-origin'
-            iframe['allow'] = 'accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
-            iframe['sandbox'] = 'allow-scripts allow-same-origin'
+
+        # YouTube: replace with clickable thumbnail
+        if 'youtube' in src:
+            vid_match = re.search(r'/embed/([A-Za-z0-9_-]+)', src)
+            video_id = vid_match.group(1) if vid_match else ''
             style = iframe.get('style', '')
-            bg_match = re.search(r'background:\s*url\(([^)]+)\)[^;]*', style)
-            if bg_match:
-                bg_url = bg_match.group(1)
-                iframe['style'] = f'background:url({bg_url}) 50% 50% / cover no-repeat;'
-            elif 'style' in iframe.attrs:
-                del iframe['style']
+            bg_match = re.search(r'background:\s*url\(([^)]+)\)', style)
+            thumb_url = bg_match.group(1) if bg_match else f'https://i.ytimg.com/vi/{video_id}/hqdefault.jpg'
+            watch_url = f'https://www.youtube.com/watch?v={video_id}'
+            a_tag = soup.new_tag('a', href=watch_url, target='_blank')
+            img_tag = soup.new_tag('img', src=thumb_url, width='390')
+            a_tag.append(img_tag)
+            iframe.replace_with(a_tag)
+            continue
+
+        # Twitter: replace with a plain link
+        if 'twitter' in src:
+            fragment = urlparse(src).fragment
+            tweet_id = re.sub(r'\D', '', fragment)
+            tweet_url = f'https://twitter.com/i/status/{tweet_id}'
+            a_tag = soup.new_tag('a', href=tweet_url, target='_blank')
+            a_tag.string = 'Tweet Post'
+            iframe.replace_with(a_tag)
+            continue
+
+        # Other iframes: keep as-is
 
 def collect_all_pages(start_url, next_button_attrs):
     """
@@ -91,7 +104,7 @@ def parse(post):
                 p.insert_after(soup.new_tag('br')) 
                 p.insert_after(soup.new_tag('br')) # convert p to two br
                 p.unwrap()
-            update_iframes(content_div)
+            update_iframes(content_div, soup)
             contents.append(content_div.decode_contents().replace('\n', '').strip())
         # username-coloured for admin
         authors.extend([u.find('span',class_=["username", "username-coloured"]).text for u in soup.find_all('div',class_="postbody")])
