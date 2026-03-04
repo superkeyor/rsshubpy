@@ -16,6 +16,7 @@ def update_iframes(tag, soup):
         src = iframe.get('src', '')
 
         # YouTube: replace with clickable thumbnail
+        # https://newmitbbs.com/viewtopic.php?p=7126239
         if 'youtube' in src:
             vid_match = re.search(r'/embed/([A-Za-z0-9_-]+)', src)
             video_id = vid_match.group(1) if vid_match else ''
@@ -23,13 +24,20 @@ def update_iframes(tag, soup):
             bg_match = re.search(r'background:\s*url\(([^)]+)\)', style)
             thumb_url = bg_match.group(1) if bg_match else f'https://i.ytimg.com/vi/{video_id}/hqdefault.jpg'
             watch_url = f'https://www.youtube.com/watch?v={video_id}'
+            wrapper = soup.new_tag('span')
+            link_tag = soup.new_tag('a', href=watch_url, target='_blank')
+            link_tag.string = watch_url
+            wrapper.append(link_tag)
+            wrapper.append(soup.new_tag('br'))
             a_tag = soup.new_tag('a', href=watch_url, target='_blank')
             img_tag = soup.new_tag('img', src=thumb_url, width='390')
             a_tag.append(img_tag)
-            iframe.replace_with(a_tag)
+            wrapper.append(a_tag)
+            iframe.replace_with(wrapper)
             continue
 
         # Twitter: replace with a plain link
+        # https://newmitbbs.com/viewtopic.php?t=982181
         if 'twitter' in src:
             fragment = urlparse(src).fragment
             tweet_id = re.sub(r'\D', '', fragment)
