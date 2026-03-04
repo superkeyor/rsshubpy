@@ -19,7 +19,7 @@ SSH_LOGIN=""      # e.g. 'ssh -p 2023 parallels@192.168.1.81'
 
 # ── 1. Git: commit + push to GitHub ──────────────────────────────────────────
 if [[ "$RUN_GIT" == false ]]; then
-    echo "Skipping git commit and push."
+    echo "Skipping git commit and push (not enabled)."
 else
     git add -A
     git commit -m 'update'
@@ -28,7 +28,7 @@ fi
 
 # ── 2. Docker Hub: build + push ───────────────────────────────────────────────
 if [[ "$RUN_DOCKER" == false ]]; then
-    echo "Skipping Docker Hub push."
+    echo "Skipping Docker Hub push (not enabled)."
 elif [[ $(command -v docker) != "" ]]; then
     if [[ "${REPO_VISIBILITY}" == "--private" ]]; then
         echo "Repo is private. Skipping Docker Hub push."
@@ -60,14 +60,14 @@ elif [[ $(command -v docker) != "" ]]; then
                 --push \
                 .
         else
-            echo "Skipping Docker Hub push."
+            echo "Skipping Docker Hub push (user choice)."
         fi
     fi
 fi
 
 # ── 3. Remote SSH: rsync + build ─────────────────────────────────────────────
 if [[ "$RUN_REMOTE" == false ]]; then
-    echo "Skipping remote build."
+    echo "Skipping remote build (not enabled)."
 elif [[ -z "$SSH_LOGIN" ]]; then
     echo "Skipping remote build (SSH_LOGIN not set)."
 else
@@ -95,8 +95,8 @@ else
 fi
 
 echo ""
-echo "Visit https://github.com/${GITHUB_USER}/${REPO_NAME}"
-echo "      https://hub.docker.com/r/${DOCKERHUB_USER}/${REPO_NAME}/tags"
+echo "Visit (if available) https://github.com/${GITHUB_USER}/${REPO_NAME}"
+echo "                     https://hub.docker.com/r/${DOCKERHUB_USER}/${REPO_NAME}/tags"
 echo ""
 
 
