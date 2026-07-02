@@ -1,5 +1,4 @@
 from rsshub.utils import DEFAULT_HEADERS, fetch_by_browser, fetch_by_puppeteer, extract_html, decompose_element
-import requests 
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from datetime import datetime
@@ -36,22 +35,19 @@ def collect_all_pages(start_url, next_button_attrs):
     Returns:
         list: A list of BeautifulSoup objects for all pages.
     """
-    session = requests.Session()
     soups = []
 
     url = start_url
     p=1
     while url:
-        # session.headers.update(headers)
-        session.headers.update(DEFAULT_HEADERS)
-        response = session.get(url)
-        if response.status_code != 200:
-            print(f"Failed to retrieve page: {url}")
+        try:
+            soup, _, _, _ = fetch_by_browser(url)
+        except Exception as e:
+            print(f"Failed to retrieve page: {url} — {e}")
             break
 
-        print(response)
-        soup = BeautifulSoup(response.content, "lxml")
         soups.append(soup)
+        print(url)
 
         next_button = soup.find("a", attrs=next_button_attrs)
         if not next_button or not next_button.get("href"):
@@ -70,7 +66,7 @@ def collect_all_pages(start_url, next_button_attrs):
 
         # Optional: Add a delay to avoid overwhelming the server
         time.sleep(random.uniform(10, 15))  # Sleep for seconds between requests
-        
+
         p+=1
         if p>1: break
     return soups
