@@ -1,4 +1,4 @@
-from rsshub.utils import DEFAULT_HEADERS, fetch, fetch_by_puppeteer, extract_html, decompose_element
+from rsshub.utils import DEFAULT_HEADERS, fetch_by_browser, fetch_by_puppeteer, extract_html, decompose_element
 import requests 
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
@@ -196,8 +196,7 @@ def ctx(category=''):
     posts=[]
     
     for url in urls:
-        html = fetch(url, headers=DEFAULT_HEADERS).get()
-        soup = BeautifulSoup(html, 'lxml')
+        soup, _, _, _ = fetch_by_browser(url)
         
         for th in soup.find_all('th', attrs={'class':'common'}):
             if th.find('img', attrs={'alt':'heatlevel'}) or th.find('img', attrs={'alt':'digest'}):

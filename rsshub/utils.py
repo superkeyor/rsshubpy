@@ -132,6 +132,146 @@ def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None, wai
         else:
             return soups, sources, urls, titles
 
+def fetch_by_browser2(url, user_data_dir=None, HEADED=None, DEBUG=None, wait=3):
+    # Pure CDP Mode (no WebDriver/chromedriver) with Xvfb virtual display.
+    # Chrome always runs headed on Xvfb (:99); HEADED param is kept for API
+    # compatibility with fetch_by_browser but does not change this behaviour.
+    import os, time, asyncio, subprocess
+
+    WINDOW_W, WINDOW_H = 1920, 1080
+
+    _STEALTH_JS = """
+Object.defineProperty(navigator, 'webdriver', {get: () => undefined, configurable: true});
+if (!window.chrome) { window.chrome = {}; }
+if (!window.chrome.runtime) { window.chrome.runtime = {}; }
+const __origPermQuery__ = window.navigator.permissions.query.bind(navigator.permissions);
+window.navigator.permissions.query = (p) =>
+    p.name === 'notifications'
+    ? Promise.resolve({ state: Notification.permission })
+    : __origPermQuery__(p);
+Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en'], configurable: true});
+if (navigator.plugins.length === 0) {
+    Object.defineProperty(navigator, 'plugins', {
+        get: () => { const p = [1,2,3]; p.refresh=()=>{}; return p; },
+        configurable: true,
+    });
+}
+"""
+
+    def is_ipython_interactive():
+        try:
+            from IPython import get_ipython
+            ipython = get_ipython()
+            if ipython is None:
+                return False
+            return ipython.__class__.__name__ in ['TerminalInteractiveShell', 'ZMQInteractiveShell']
+        except (ImportError, AttributeError):
+            return False
+
+    if is_ipython_interactive():
+        os.environ['FLASK_ENV'] = 'development'
+
+    # vmd
+    if os.getenv('FLASK_ENV') == "development" and 'XDG_CURRENT_DESKTOP' in os.environ:
+        home = os.path.expanduser("~")
+        if user_data_dir is None: user_data_dir = f"{home}/Desktop/chromiumprofile"
+        os.system(f"rm -rf {user_data_dir}")
+        os.system(f"cp -r {home}/Desktop/rsshub_python/rsshub/chromiumprofile {user_data_dir}")
+        if DEBUG is None: DEBUG = True
+    # vmo
+    elif os.getenv('FLASK_ENV') == "development" and 'XDG_CURRENT_DESKTOP' not in os.environ:
+        home = os.path.expanduser("~")
+        if user_data_dir is None: user_data_dir = f"{home}/chromiumprofile"
+        os.system(f"rm -rf {user_data_dir}")
+        os.system(f"cp -r {home}/rsshub_python/rsshub/chromiumprofile {user_data_dir}")
+        if DEBUG is None: DEBUG = False
+    else:
+        if user_data_dir is None: user_data_dir = "/app/rsshub/chromiumprofile"
+        if DEBUG is None: DEBUG = False
+
+    # Kill any lingering Chrome/chromedriver processes
+    try:
+        subprocess.run(["pkill", "-f", "chrome"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(["pkill", "-f", "chromedriver"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        pass
+
+    # Always start Xvfb virtual display; Chrome runs headed on it
+    xvfb_proc = None
+    try:
+        xvfb_proc = subprocess.Popen(
+            ["Xvfb", ":99", "-screen", "0", f"{WINDOW_W}x{WINDOW_H}x24", "-ac"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        os.environ["DISPLAY"] = ":99"
+        time.sleep(0.5)  # give Xvfb time to initialise
+    except Exception as e:
+        print(f"[Warn] Xvfb start failed (falling back to headless): {e}")
+        xvfb_proc = None
+
+    async def _run():
+        import mycdp.page
+        from seleniumbase import cdp_driver
+
+        driver = await cdp_driver.start_async(
+            headless=False,  # always headed on Xvfb virtual display
+            no_sandbox=True,
+            agent=(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/148.0.0.0 Safari/537.36"
+            ),
+            lang="en-US",
+            user_data_dir=user_data_dir,
+        )
+        try:
+            tab = await driver.get("about:blank")
+            await tab.set_window_size(0, 0, WINDOW_W, WINDOW_H)
+            # Inject stealth patches before any page script runs
+            try:
+                await tab._send_oneshot(
+                    mycdp.page.add_script_to_evaluate_on_new_document(source=_STEALTH_JS)
+                )
+            except Exception as e:
+                print(f"[Warn] Stealth JS injection failed (non-fatal): {e}")
+
+            soups, sources, result_urls, titles = [], [], [], []
+            urls_list = [url] if not isinstance(url, list) else url
+            for u in urls_list:
+                await tab.get(u, timeout=60)
+                await tab.sleep(wait)
+                source = await tab.get_page_source()
+                current_url = await tab.get_current_url()
+                title = await tab.evaluate("document.title")
+                sources.append(source)
+                soups.append(BeautifulSoup(source, "lxml"))
+                result_urls.append(current_url)
+                titles.append(title)
+
+            if len(urls_list) == 1:
+                return soups[0], sources[0], result_urls[0], titles[0]
+            else:
+                return soups, sources, result_urls, titles
+        finally:
+            try:
+                await driver.stop()
+            except Exception:
+                pass
+
+    try:
+        result = asyncio.run(_run())
+        if DEBUG:
+            import pdb; pdb.set_trace()
+        return result
+    finally:
+        if xvfb_proc is not None:
+            xvfb_proc.terminate()
+            try:
+                xvfb_proc.wait(timeout=3)
+            except Exception:
+                xvfb_proc.kill()
+
 async def fetch_by_puppeteer(url):
     try:
         from pyppeteer import launch

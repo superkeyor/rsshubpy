@@ -6,6 +6,9 @@ FROM superkeyor/python_chromium_driver:latest
 
 WORKDIR /app
 
+# install xvfb for virtual display (used by fetch_by_browser2)
+RUN apt-get update && apt-get install -y --no-install-recommends xvfb && rm -rf /var/lib/apt/lists/*
+
 # copy requirements first so pip layer is cached unless requirements.txt changes
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt  # --no-cache-dir reduces image size
