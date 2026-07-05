@@ -1,4 +1,4 @@
-from rsshub.utils import DEFAULT_HEADERS, fetch_by_browser, fetch_by_puppeteer, extract_html, decompose_element
+from rsshub.utils import DEFAULT_HEADERS, fetch_by_browser2, fetch_by_puppeteer, extract_html, decompose_element
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from datetime import datetime
@@ -41,7 +41,7 @@ def collect_all_pages(start_url, next_button_attrs):
     p=1
     while url:
         try:
-            soup, _, _, _ = fetch_by_browser(url)
+            soup, _, _, _ = fetch_by_browser2(url)
         except Exception as e:
             print(f"Failed to retrieve page: {url} — {e}")
             break
@@ -192,7 +192,7 @@ def ctx(category=''):
     posts=[]
     
     for url in urls:
-        soup, _, _, _ = fetch_by_browser(url)
+        soup, _, _, _ = fetch_by_browser2(url)
         
         for th in soup.find_all('th', attrs={'class':'common'}):
             if th.find('img', attrs={'alt':'heatlevel'}) or th.find('img', attrs={'alt':'digest'}):
