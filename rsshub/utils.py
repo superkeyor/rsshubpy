@@ -100,37 +100,58 @@ def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None, wai
     # Force-kills any lingering Chrome or Chromedriver processes.
     import subprocess
     try:
-        # pkill -f searches the entire command line for 'chrome' and 'chromedriver'
         subprocess.run(["pkill", "-f", "chrome"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         subprocess.run(["pkill", "-f", "chromedriver"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except Exception:
-        # It's perfectly fine if pkill fails (e.g., if no zombies exist)
         pass
-    with SB(headless=True, headed=HEADED, maximize=True,
-            undetectable=True, uc_cdp_events=True, driver_version="keep", 
-            incognito=False, mobile=False, disable_csp=True, ad_block=True, 
-            user_data_dir=user_data_dir) as sb:
-        soups, sources, urls, titles = [], [], [], []
-        url = [url] if type(url) is not list else url
-        for i, u in enumerate(url):
-            if i == 0:
-                sb.activate_cdp_mode(u)
+
+    # SeleniumBase's UC mode (undetectable=True) auto-spawns its own Xvfb
+    # display internally when running headless as root. On crash/timeout
+    # exit paths that display can be orphaned, leaking fds until the
+    # process hits its open-file ulimit. We don't spawn Xvfb ourselves —
+    # just detect and reap whatever UC mode leaves behind after this call.
+    def _xvfb_pids():
+        try:
+            out = subprocess.run(["pgrep", "-f", "Xvfb"], stdout=subprocess.PIPE, text=True)
+            return set(out.stdout.split())
+        except Exception:
+            return set()
+
+    _xvfb_before = _xvfb_pids()
+    try:
+        with SB(headless=True, headed=HEADED, maximize=True,
+                undetectable=True, uc_cdp_events=True, driver_version="keep",
+                incognito=False, mobile=False, disable_csp=True, ad_block=True,
+                user_data_dir=user_data_dir) as sb:
+            soups, sources, urls, titles = [], [], [], []
+            url = [url] if type(url) is not list else url
+            for i, u in enumerate(url):
+                if i == 0:
+                    sb.activate_cdp_mode(u)
+                else:
+                    sb.cdp.open_new_tab(u)
+                    sb.cdp.switch_to_newest_tab()
+                # wait for page to load?
+                time.sleep(wait)
+                source = sb.get_page_source()
+                sources.append(source)
+                soups.append(BeautifulSoup(source, "lxml"))
+                urls.append(sb.get_current_url())
+                titles.append(sb.get_page_title())
+            # n(next), s(step), c(continue), q(quit)
+            if DEBUG: import pdb; pdb.set_trace()
+            if len(url) == 1:
+                return soups[0], sources[0], urls[0], titles[0]
             else:
-                sb.cdp.open_new_tab(u)
-                sb.cdp.switch_to_newest_tab()
-            # wait for page to load?
-            time.sleep(wait)
-            source = sb.get_page_source()
-            sources.append(source)
-            soups.append(BeautifulSoup(source, "lxml"))
-            urls.append(sb.get_current_url())
-            titles.append(sb.get_page_title())
-        # n(next), s(step), c(continue), q(quit)
-        if DEBUG: import pdb; pdb.set_trace()
-        if len(url)==1:
-            return soups[0], sources[0], urls[0], titles[0]
-        else:
-            return soups, sources, urls, titles
+                return soups, sources, urls, titles
+    finally:
+        # Kill only Xvfb PIDs that appeared during this call and are still
+        # alive — i.e. orphaned by this session, not a concurrent one.
+        for _pid in _xvfb_pids() - _xvfb_before:
+            try:
+                subprocess.run(["kill", "-9", _pid])
+            except Exception:
+                pass
 
 def fetch_by_browser2(url, user_data_dir=None, HEADED=None, DEBUG=None, wait=3):
     # Pure CDP Mode (no WebDriver/chromedriver) with Xvfb virtual display.
