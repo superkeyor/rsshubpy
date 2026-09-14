@@ -153,6 +153,7 @@ def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None, wai
             except Exception:
                 pass
 
+# not tested, not used (maybe useful in the future)
 def fetch_by_browser2(url, user_data_dir=None, HEADED=None, DEBUG=None, wait=3):
     # Pure CDP Mode (no WebDriver/chromedriver) with Xvfb virtual display.
     # Chrome always runs headed on Xvfb (:99); HEADED param is kept for API
