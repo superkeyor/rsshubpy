@@ -1,4 +1,7 @@
 import re
+import os
+from datetime import datetime
+from pathlib import Path
 from flask import Response
 import requests
 from parsel import Selector
@@ -7,6 +10,29 @@ from bs4 import BeautifulSoup
 
 # https://www.whatismybrowser.com/guides/the-latest-user-agent/chrome
 DEFAULT_HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36'}
+
+# default cache for docker is: RSS_CACHE_DIR /app/cache
+def cache_content(content, pub_date: datetime, feed_name: str, cache_root=None):
+    if cache_root is None:
+        cache_root = os.environ.get(
+            'RSS_CACHE_DIR',
+            Path(__file__).resolve().parents[1] / 'cache',
+        )
+    feed_name = re.sub(r'[^A-Za-z0-9_.-]+', '_', feed_name).strip('._') or 'default'
+    feed_cache_dir = Path(cache_root) / feed_name
+    feed_cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_file = feed_cache_dir / f'{pub_date.strftime("%Y-%m-%dT%H-%M-%S")}.html'
+
+    if cache_file.exists():
+        return cache_file.read_text(encoding='utf-8')
+
+    for old_cache_file in feed_cache_dir.glob('*.html'):
+        old_cache_file.unlink()
+
+    temporary_file = cache_file.with_suffix('.tmp')
+    temporary_file.write_text(content, encoding='utf-8')
+    temporary_file.replace(cache_file)
+    return content
 
 class XMLResponse(Response):
     def __init__(self, response, **kwargs):
@@ -153,7 +179,7 @@ def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None, wai
             except Exception:
                 pass
 
-# not tested, not used (maybe useful in the future)
+# not tested (likely not work), not used (maybe useful in the future)
 def fetch_by_browser2(url, user_data_dir=None, HEADED=None, DEBUG=None, wait=3):
     # Pure CDP Mode (no WebDriver/chromedriver) with Xvfb virtual display.
     # Chrome always runs headed on Xvfb (:99); HEADED param is kept for API

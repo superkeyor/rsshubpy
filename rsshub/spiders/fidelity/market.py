@@ -3,7 +3,7 @@ import json
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
-from rsshub.utils import DEFAULT_HEADERS, fetch, extract_html
+from rsshub.utils import DEFAULT_HEADERS, cache_content, fetch, extract_html
 
 domain = 'https://digital.fidelity.com/prgw/digital/research'
 
@@ -81,15 +81,7 @@ def fidelity_market_screenshot(HEADED=True, DEBUG=True):
         sb.wait(3)
         imgs[label]=sb.driver.find_element(selector).screenshot_as_base64
 
-        label="mover"; url=f"{base_url}/src/overview"; selector=".pvd3-table-root"
-        sb.disconnect()
-        sb.cdp.open(url)
-        sb.wait_for_element(selector, timeout=60)
-        sb.connect()
-        sb.scroll_into_view(selector)
-        sb.wait(3)
-        imgs[label]=sb.driver.find_element(selector).screenshot_as_base64
-        
+        # sector's date is the latest, so we can use it as the pubDate for the whole website
         source = sb.get_page_source()
         soup = BeautifulSoup(source, "lxml")
         import re
@@ -103,6 +95,17 @@ def fidelity_market_screenshot(HEADED=True, DEBUG=True):
         else:
             pubDate = datetime.now()
 
+        label="mover"; url=f"{base_url}/src/overview"; selector=".pvd3-table-root"
+        sb.disconnect()
+        sb.cdp.open(url)
+        sb.wait_for_element(selector, timeout=60)
+        sb.connect()
+        sb.scroll_into_view(selector)
+        sb.wait(3)
+        elements = sb.driver.find_elements(selector)   # find_element only gets the first one
+        imgs["mover"]=elements[0].screenshot_as_base64
+        imgs["order"]=elements[1].screenshot_as_base64
+
         html=''
         for k in imgs:
             img = imgs[k]
@@ -114,6 +117,7 @@ def fidelity_market_screenshot(HEADED=True, DEBUG=True):
 
 def ctx(category=''):
     content, pubDate = fidelity_market_screenshot(HEADED=False, DEBUG=False)
+    content = cache_content(content, pubDate, feed_name='fidelity_market')
     item = {}
     item['title'] = f'Fidelity Market: {pubDate.strftime("%b-%d-%Y %I:%M %p ET")}'
     item['link'] = f'{domain}'
