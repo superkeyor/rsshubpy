@@ -24,7 +24,8 @@ def fidelity_market_screenshot(HEADED=True, DEBUG=True):
         sb.wait(3)
         imgs[label]=sb.driver.find_element(selector).screenshot_as_base64
 
-        label="sector"; url=f"{base_url}/sector"; selector="#market-sector-performance-table"
+        # label="sector"; url=f"{base_url}/sector"; selector="#market-sector-performance-table"
+        label="sector"; url=f"{base_url}/sector"; selector=".market-box-x1"
         sb.disconnect()
         sb.cdp.open(url)
         sb.wait_for_element(selector, timeout=60)
@@ -38,11 +39,11 @@ def fidelity_market_screenshot(HEADED=True, DEBUG=True):
                     // Replace the text
                     node.textContent = node.textContent.replace(/S&P 500 Financials Sector/g, "Financials");
                     node.textContent = node.textContent.replace(/S&P 500 Real Estate Sector/g, "Real Estate");
-                    node.textContent = node.textContent.replace(/S&P 500 Consumer Discretionary Sector/g, "Cons. Disc.");
+                    node.textContent = node.textContent.replace(/S&P 500 Consumer Discretionary Sector/g, "Cons. Disc. Y");
                     node.textContent = node.textContent.replace(/S&P 500 Information Technology Sector/g, "Info Tech.");
                     node.textContent = node.textContent.replace(/S&P 500 Industrials Sector/g, "Industrials");
                     node.textContent = node.textContent.replace(/S&P 500 Materials Sector/g, "Materials");
-                    node.textContent = node.textContent.replace(/S&P 500 Consumer Staples Sector/g, "Cons. Stap.");
+                    node.textContent = node.textContent.replace(/S&P 500 Consumer Staples Sector/g, "Cons. Stap. P");
                     node.textContent = node.textContent.replace(/S&P 500 Health Care Sector/g, "Health Care");
                     node.textContent = node.textContent.replace(/S&P 500 Energy Sector/g, "Energy");
                     node.textContent = node.textContent.replace(/S&P 500 Communication Services Sector/g, "Comm. Serv.");
