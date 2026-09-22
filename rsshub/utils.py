@@ -145,6 +145,8 @@ def fetch_by_browser(url, user_data_dir = None, HEADED = None, DEBUG = None, wai
 
     _xvfb_before = _xvfb_pids()
     try:
+        # cdp more likely to bypass bot detection, but fewer methods than uc mode
+        # sb.connect/disconnect refer to the uc, not cdp
         with SB(headless=True, headed=HEADED, maximize=True,
                 undetectable=True, uc_cdp_events=True, driver_version="keep",
                 incognito=False, mobile=False, disable_csp=True, ad_block=True,

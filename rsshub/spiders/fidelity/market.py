@@ -7,6 +7,33 @@ from rsshub.utils import DEFAULT_HEADERS, cache_content, fetch, extract_html
 
 domain = 'https://digital.fidelity.com/prgw/digital/research'
 
+def navigate_to_target(sb, url, selector, reconnect_uc=True):
+    """Navigate to a URL and scroll into selector via CDP mode, then optionally reconnect WebDriver.
+
+    CDP mode is used for navigation because it's more likely to bypass bot
+    detection, but it exposes fewer methods than uc (undetected-chromedriver)
+    mode. Screenshot APIs and other WebDriver-only methods require
+    reconnecting afterward. 
+    Note: sb.connect()/sb.disconnect() control the uc WebDriver connection, not the CDP connection.
+
+    Args:
+        sb: SeleniumBase driver instance.
+        url (str): URL to navigate to.
+        selector (str): CSS selector to wait for and scroll into view,
+            confirming the page has loaded.
+        reconnect (bool): If True (default), reconnect WebDriver after
+            navigation so screenshot APIs and other WebDriver-only methods
+            are usable. Set False to stay in CDP mode.
+    """
+    if sb.is_connected():
+        sb.disconnect()
+    sb.cdp.open(url)
+    sb.wait_for_element(selector, timeout=60)
+    sb.scroll_into_view(selector)
+    if reconnect_uc:
+        sb.connect()  # reconnect WebDriver for screenshot APIs etc
+    sb.wait(3)
+
 def fidelity_market_screenshot(HEADED=True, DEBUG=True):
     from bs4 import BeautifulSoup
     from seleniumbase import SB
@@ -16,20 +43,14 @@ def fidelity_market_screenshot(HEADED=True, DEBUG=True):
             undetectable=True, uc_cdp_events=True, driver_version="keep", 
             incognito=False, mobile=False, disable_csp=True, ad_block=True, 
             user_data_dir=None) as sb:
+        sb.activate_cdp_mode(url)  # initialize CDP mode for navigation
+
         label="market"; url=f"{base_url}/market"; selector=".market-chart-container"
-        sb.activate_cdp_mode(url)
-        sb.wait_for_element(selector, timeout=60)
-        sb.connect()
-        sb.scroll_into_view(selector)
-        sb.wait(3)
+        navigate_to_target(sb, url, selector)
         imgs[label]=sb.driver.find_element(selector).screenshot_as_base64
 
-        # label="sector"; url=f"{base_url}/sector"; selector="#market-sector-performance-table"
-        label="sector"; url=f"{base_url}/sector"; selector=".market-box-x1"
-        sb.disconnect()
-        sb.cdp.open(url)
-        sb.wait_for_element(selector, timeout=60)
-        sb.connect()
+        label="sector"; url=f"{base_url}/sector"; selector="#market-sector-performance-table"
+        navigate_to_target(sb, url, selector, reconnect_uc=False)
         sb.execute_script("""
             // Get the table element
             var table = document.getElementById('market-sector-performance-table');
@@ -79,6 +100,7 @@ def fidelity_market_screenshot(HEADED=True, DEBUG=True):
             }
         """)
         sb.scroll_into_view(selector)
+        sb.connect()
         sb.wait(3)
         imgs[label]=sb.driver.find_element(selector).screenshot_as_base64
 
@@ -96,16 +118,14 @@ def fidelity_market_screenshot(HEADED=True, DEBUG=True):
         else:
             pubDate = datetime.now()
 
-        label="mover"; url=f"{base_url}/src/overview"; selector=".pvd3-table-root"
-        sb.disconnect()
-        sb.cdp.open(url)
-        sb.wait_for_element(selector, timeout=60)
-        sb.connect()
-        sb.scroll_into_view(selector)
-        sb.wait(3)
-        elements = sb.driver.find_elements(selector)   # find_element only gets the first one
-        imgs["mover"]=elements[0].screenshot_as_base64
-        imgs["order"]=elements[1].screenshot_as_base64
+        label="mover"; url=f"{base_url}/src/overview"; selector=".src-market-movers-card-div"
+        navigate_to_target(sb, url, selector)
+        # elements = sb.driver.find_elements(selector)   # find_element only gets the first one
+        imgs[label]=sb.driver.find_element(selector).screenshot_as_base64
+
+        label="order"; url=f"{base_url}/src/overview"; selector=".orders-padding"
+        navigate_to_target(sb, url, selector)
+        imgs[label]=sb.driver.find_element(selector).screenshot_as_base64
 
         html=''
         for k in imgs:
