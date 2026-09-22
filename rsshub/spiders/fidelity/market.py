@@ -50,7 +50,7 @@ def fidelity_market_screenshot(HEADED=True, DEBUG=True):
         imgs[label]=sb.driver.find_element(selector).screenshot_as_base64
 
         label="sector"; url=f"{base_url}/sector"; selector="#market-sector-performance-table"
-        navigate_to_target(sb, url, selector, reconnect_uc=False)
+        navigate_to_target(sb, url, selector)
         sb.execute_script("""
             // Get the table element
             var table = document.getElementById('market-sector-performance-table');
@@ -100,7 +100,6 @@ def fidelity_market_screenshot(HEADED=True, DEBUG=True):
             }
         """)
         sb.scroll_into_view(selector)
-        sb.connect()
         sb.wait(3)
         imgs[label]=sb.driver.find_element(selector).screenshot_as_base64
 
