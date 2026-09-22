@@ -43,7 +43,7 @@ def fidelity_market_screenshot(HEADED=True, DEBUG=True):
             undetectable=True, uc_cdp_events=True, driver_version="keep", 
             incognito=False, mobile=False, disable_csp=True, ad_block=True, 
             user_data_dir=None) as sb:
-        sb.activate_cdp_mode(url)  # initialize CDP mode for navigation
+        sb.activate_cdp_mode(base_url)  # initialize CDP mode for navigation
 
         label="market"; url=f"{base_url}/market"; selector=".market-chart-container"
         navigate_to_target(sb, url, selector)
