@@ -1,96 +1,124 @@
-# Build
-```
-dinit rsshub_python
+# rsshubpy
 
-####### ./run
-cat <<EOF | tee run >/dev/null
-#!/usr/bin/env bash
-csd="\$( cd "\$( dirname "\${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-cd "\$csd"
+Personal RSS feeds generated in Python (Flask), originally forked from
+[RSSHub-python](https://github.com/alphardex/RSSHub-python). Sites that block plain HTTP clients are fetched
+with one long-lived, headed Chromium (SeleniumBase UC + CDP mode) inside the container.
 
-if [[ \$(command -v quiterss) == "" ]]; then
-pip3 install -r requirements.txt
-sudo apt update
-sudo apt install quiterss -y   # brew install --cask fluent-reader
-fi
+Built on [chromiumkit](https://hub.docker.com/r/superkeyor/chromiumkit) (Debian Chromium + Xvfb + noVNC)
+and laid out like `dockerapp_template`. Design notes for contributors and coding agents: [AGENTS.md](AGENTS.md).
 
-sudo docker stop --force rsshub_python && sudo docker rm rsshub_python && sudo docker run -d --rm --name rsshub_python -p 11201:5000 superkeyor/rsshub_python:latest
-echo ""
-flask run --host=0.0.0.0 --port=1201
-# alternatively to debug
-# ipython
-# import os; os.environ['FLASK_ENV'] = 'development'; from rsshub.utils import fetch_by_browser
-# fetch_by_browser(url)
+## Feeds
 
-EOF
-chmod +x run
-```
+Open `http://<host>:11201/` for the generated list of routes. Current routes:
 
-# RSSHub
+| Route | Source |
+|---|---|
+| `/13` | 1point3acres hot threads with replies |
+| `/bloomberg/wrap` | Bloomberg Markets Wrap |
+| `/fidelity/weekly`, `/fidelity/quarterly`, `/fidelity/ideas` | Fidelity market updates |
+| `/fidelity/market` | Fidelity research screenshots |
+| `/newmitbbs` | newmitbbs popular + recommended topics |
+| `/tldr/ai` | TLDR AI newsletter |
+| `/v2ex/tab/<tab>` | V2EX tab, e.g. `hot` |
+| `/xueqiu/hots`, `/xueqiu/user/<id>[/<category>]` | Xueqiu hot posts / user timeline |
+| `/ymail/<folder>` | Yahoo mail folder (via RSSHub's IMAP route) |
 
-> 🍰 万物皆可 RSS
+Readers get the **last saved copy** of each feed URL, so requests are instant. Cron rebuilds every saved
+URL at minutes 15 and 45 of each hour (`crontab` → `POST /refresh`, allowed from inside the container only).
+A failed rebuild keeps the previous copy. The spider runs live only for the first request of a new URL, or
+when the same URL is requested **twice within 30 seconds** (open it twice to get the latest right away).
+Saved URLs are never dropped automatically. The index page lists them with their age and last error.
+Copies live in `app/cache/feeds/` (bind-mounted in production). At most one spider per site runs at a time
+(site = folder under `app/spiders/`); a second feed of the same site waits for the first.
 
-RSSHub 是一个轻量、易于扩展的 RSS 生成器，可以给任何奇奇怪怪的内容生成 RSS 订阅源
+Every feed accepts these query parameters (regex; `a|b` matches either):
+`include_title`, `include_description`, `exclude_title`, `exclude_description`, `limit`.
+Example: `/xueqiu/hots?exclude_title=广告|推广&limit=5`.
 
-本项目是[原RSSHub](https://github.com/DIYgod/RSSHub)的Python实现。
+Posts on newmitbbs and xueqiu are filtered by [app/blocker.json](app/blocker.json). Production reads it from
+GitHub on every request, so an edit on GitHub takes effect without a rebuild.
 
+## Add a feed
 
-**其实用Python写爬虫要比JS更方便:p**
+Create one file under `app/spiders/<site>/<name>.py` (one folder per site: spiders of the same folder never
+run at the same time); nothing else needs registering:
 
-DEMO地址：https://pyrsshub.vercel.app
+```python
+from feeds import feed
+from fetch import fetch
 
-
-## 交流
-
-Discord Server： [https://discord.gg/4BZBZuyx7p](https://discord.gg/4BZBZuyx7p)
-
-## RSS过滤
-
-你可以通过以下查询字符串来过滤RSS的内容：
-
-- include_title: 搜索标题，支持多关键词
-- include_description: 搜索描述
-- exclude_title: 排除标题
-- exclude_description: 排除描述
-- limit: 限制条数
-
-## 贡献 RSS 方法
-
-1. fork这份仓库
-2. 在spiders文件夹下创建新的爬虫目录和脚本，编写爬虫，参考我的[爬虫教程](https://juejin.cn/post/6953881777756700709)
-3. 在blueprints的main.py中添加对应的路由（按照之前路由的格式）
-4. 在templates中的main目录下的feeds.html上写上说明文档，同样可参照格式写
-5. 提pr
-
-## 部署
-
-### 本地测试
-
-首先确保安装了[pipenv](https://github.com/pypa/pipenv)
-
-``` bash
-git clone https://github.com/alphardex/RSSHub-python
-cd RSSHub-python
-pipenv install --dev
-pipenv shell
-flask run
+@feed('/example/<category>')
+def ctx(category='news'):
+    """One line shown on the index page."""
+    soup = fetch(f'https://example.com/{category}', via='requests').soup   # or via='browser' (real Chrome)
+    return {
+        'title': 'Example', 'link': 'https://example.com', 'description': '', 'author': 'Jerry',
+        'items': [{'title': ..., 'link': ..., 'pubDate': ..., 'description': ..., 'author': ...}],
+    }
 ```
 
-### 生产环境
+`fetch(url, via=...)` returns `.soup`, `.html`, `.url`, `.title`; `via` is required: `'requests'` (plain
+HTTP, the real Chromium user agent) or `'browser'` (a real Chrome window). The index page's "Fetches" column
+shows what each spider uses (generated from the code).
 
-``` bash
-gunicorn main:app -b 0.0.0.0:5000
+For multi-step browser work (waits, clicks, screenshots, WebDriver) use a window directly:
+
+```python
+from browser import window
+
+with window(url) as page:                 # its own Chrome window, closed after the block
+    page.open(url)
+    page.wait('article')                  # wait for an element instead of a fixed sleep
+    soup = page.soup()
+
+with window(url, uc=True) as page:        # + page.driver: Selenium WebDriver (UC) for the same window
+    page.open(url)
+    png = page.driver.find_element('css selector', '.chart').screenshot_as_base64
 ```
 
-### 部署到 Vercel
+Forum threads (pages that grow with replies): `threadcache.collect_pages(site, url, signature, next_url,
+via=..., pages=...)` returns the page soups but downloads only what changed since the last run (`signature`:
+something from the listing that changes with every reply; `pages`: `0`, a number, or `'all'`). See
+`spiders/v2ex/tab.py`.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhillerliao%2Frsshub-python)
+URL variables become keyword arguments. An item may set `id`; otherwise the Atom entry id is built from
+`link` and `pubDate`, so keep both stable or readers will see duplicates.
 
-### Docker 部署
+## Run
 
-创建docker容器 `docker run -dt --name pyrsshub -p 5000:5000 hillerliao/pyrsshub:latest`
+```bash
+docker compose up -d        # with docker-compose.override.yml present: dev mode (see below)
+docker logs -f rsshubpy
+```
 
-## Requirements
+- Production (`docker-compose.yml` only): gunicorn on host port **11201**. The Chrome profile and the
+  content cache are bind-mounted from `/dataguardian/nodata/rsshubpy/`.
+- Development (`docker-compose.override.yml`, image `rsshubpy:dev`): Flask dev server with hot reload of
+  `./app`, profile and cache in `app/chromiumprofile` / `app/cache` (gitignored), and the noVNC viewer on
+  **11202**.
 
-- Python 3.8
+Build the dev image with `docker build -t rsshubpy:dev .`. `./upload` commits, pushes to GitHub, and builds and
+pushes `superkeyor/rsshubpy` to Docker Hub.
 
+### Watching or setting up Chrome (noVNC)
+
+With `ENABLE_VNC=true`, open `http://<host>:11202/` to watch the browser windows and click or type in them,
+for example to log in to a site or install an extension. Everything lands in the persistent profile. Anyone
+who can reach that port controls the browser; set `VNC_PASSWORD` if it is not private.
+
+### Settings
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `APP_ENV` | `production` | `development` = Flask dev server, local `blocker.json` |
+| `MAX_WINDOWS` | `3` | Chrome windows at once (one per site; more requests wait) |
+| `PROFILE_MAX_MB` | `2000` | At start, delete the profile's cache folders if it is bigger (cookies are kept); `0` = never |
+| `LOG_LEVEL` | `INFO` | Python log level |
+| `ENABLE_VNC`, `VNC_PASSWORD`, `SCREEN_GEOMETRY` | from chromiumkit | noVNC viewer and Xvfb size |
+
+### Userscripts
+
+`app/userscripts/*.user.js` are injected into matching pages without a userscript manager (currently the
+[Bloomberg paywall bypass](https://greasyfork.org/en/scripts/598567)). Only scripts with `@grant none` and no
+`@require` are supported; others are skipped with a warning in the log, and need a userscript manager
+installed in the profile via noVNC.

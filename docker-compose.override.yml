@@ -1,0 +1,25 @@
+# ==============================================================================
+# DOCKER COMPOSE OVERRIDE (DEVELOPMENT)
+# ==============================================================================
+# HOW TO RUN:
+# 1. DEVELOPMENT: 'docker compose up -d'
+#    -> If this file is present, Docker merges it with 'docker-compose.yml'.
+#
+# 2. PRODUCTION:  'docker compose up -d'
+#    -> If you ensure this override file is NOT present on the server, Docker only
+#       uses the base 'docker-compose.yml'.
+#    -> Alternatively, use 'docker compose -f docker-compose.yml up -d' to
+#       explicitly ignore this file if it exists on the server.
+# ==============================================================================
+services:
+    rsshubpy:
+        image: rsshubpy:dev
+        environment:
+            - APP_ENV=development     # flask dev server with hot reload; blocker.json read locally
+            - ENABLE_VNC=true         # watch/click Chrome at http://localhost:11202
+        volumes:
+            - ./app:/app # Enable hot-reloading
+            # Same container paths as in docker-compose.yml, so these replace the production volumes
+            # (local folders, gitignored + dockerignored)
+            - ./app/chromiumprofile:/app/chromiumprofile
+            - ./app/cache:/app/cache

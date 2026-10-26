@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RSSHub (Python)</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { text-align: left; padding: .3rem .5rem; border-bottom: 1px solid #ddd; vertical-align: top; }
+        .n, .n td, code { white-space: nowrap; }   /* short cells stay on one line */
+        td.d { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 1px; width: 100%; }
+        code { font-size: .95em; }
+    </style>
+</head>
+<body>
+    <h1>RSSHub (Python)</h1>
+    <p>{{ feeds|length }} feed routes. Every feed accepts the query filters
+        <code>include_title</code>, <code>include_description</code>, <code>exclude_title</code>,
+        <code>exclude_description</code> (regex, <code>a|b</code> = either) and <code>limit</code>.</p>
+    <table>
+        <tr><th>Route</th><th>Spider</th><th>Fetches</th><th>Description</th></tr>
+        {% for f in feeds %}
+        <tr class="n"><td><code>{{ f.rule }}</code></td><td>{{ f.module }}</td><td>{{ f.fetches }}</td><td class="d" title="{{ f.doc }}">{{ f.doc }}</td></tr>
+        {% endfor %}
+    </table>
+
+    <h2>Thread cache</h2>
+    <p>Forum threads: pages are re-downloaded only when the listing shows new replies (full refresh daily).
+        Last run per site:</p>
+    <table>
+        <tr><th>Site</th><th>Run</th><th>Threads</th><th title="no download">Same</th>
+            <th title="re-read from the last saved page">Resumed</th><th title="downloaded from page 1">Full</th>
+            <th title="pages downloaded">Pages</th><th title="dropped off the listing">Gone</th></tr>
+        {% for site, t in threads|dictsort %}
+        <tr class="n"><td>{{ site }}</td><td>{{ (now - t.at)|ago }} ago</td><td>{{ t.threads }}</td><td>{{ t.unchanged }}</td>
+            <td>{{ t.resumed }}</td><td>{{ t.full }}</td><td>{{ t.pages }}</td><td>{{ t.forgotten }}</td></tr>
+        {% else %}
+        <tr><td colspan="8">no forum run yet</td></tr>
+        {% endfor %}
+    </table>
+
+    <h2>Cached feeds</h2>
+    <p>Readers get the last saved copy; cron rebuilds every URL at :15 and :45. Requesting a URL twice within
+        30 s rebuilds it now. A failed rebuild keeps the previous copy.</p>
+    <table>
+        <tr><th>URL</th><th title="content last changed">Changed</th><th title="last rebuilt">Built</th>
+            <th title="build time">Took</th><th>Items</th><th title="last reader request">Read</th><th>Error</th></tr>
+        {% for uri, e in cached %}
+        <tr class="n"><td><a href="{{ uri }}"><code>{{ uri }}</code></a></td>
+            <td>{{ (now - e.get('updated', now))|ago if e.get('updated') else '-' }}</td>
+            <td>{{ (now - e.get('checked', now))|ago if e.get('checked') else '-' }}</td>
+            <td>{{ e.get('build_s')|ago }}</td>
+            <td>{{ e.get('entries', '-') }}</td>
+            <td>{{ (now - e.get('requested', now))|ago }}</td>
+            <td title="{{ e.error or '' }}" style="white-space: normal">{{ (e.error or '')|truncate(40) }}</td></tr>
+        {% else %}
+        <tr><td colspan="7">none yet</td></tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

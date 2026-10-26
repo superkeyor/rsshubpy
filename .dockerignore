@@ -1,7 +1,139 @@
-vercel.json
-tests
-bin
-Pipfile
-Pipfile.lock
-**/.git/
-**/.github/
+# ---------- Secrets / env / mypy ----------
+# NOTE: unlike .gitignore, .dockerignore patterns without "**/" only match
+# at the ROOT of the build context. "**/" makes them match at any depth, so
+# e.g. app/secret.py or app/.mypy_cache are excluded too, not just root copies.
+.env
+.env.*
+!.env.example
+**/local_settings.py
+**/secret.py
+**/pysecrets.py
+**/.mypy_cache
+**/.dmypy.json
+**/dmypy.json
+
+# ---------- Docker / compose ----------
+docker-compose*.y*ml
+Dockerfile*
+
+# ---------- Local data / app state ----------
+# runtime data: bind-mounted, never baked into the image
+app/chromiumprofile/
+app/cache/
+# SeleniumBase writes these into its working directory (/app)
+app/downloaded_files/
+app/latest_logs/
+tests/
+README.md
+AGENTS.md
+upload/
+run/
+*.db
+*.sqlite3
+db.sqlite3-journal
+**/*.log
+instance/
+.webassets-cache
+.scrapy
+celerybeat-schedule
+
+# ---------- Build output ----------
+# Remove any of these if your Dockerfile COPYs them in
+# (e.g. a frontend built outside Docker, or prebuilt native libs).
+build/
+dist/
+**/*.so
+
+# ---------- Docs build output ----------
+docs/_build
+site
+
+# ---------- VCS / editor ----------
+.git
+.gitignore
+.dockerignore
+.vscode/
+.idea/
+
+# ---------- Python ----------
+**/__pycache__
+**/*.py[cod]
+**/*$py.class
+**/*.egg-info
+*.egg
+.eggs/
+.Python
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Python tooling caches / reports
+.pytest_cache
+.ruff_cache
+.pyre
+.pytype
+cython_debug
+.tox
+.nox
+.hypothesis
+.cache
+.coverage
+.coverage.*
+coverage.xml
+nosetests.xml
+htmlcov/
+*.cover
+.ipynb_checkpoints
+.spyderproject
+.spyproject
+.ropeproject
+
+# ---------- Node ----------
+**/node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm
+.yarn/cache
+.yarn/install-state.gz
+.eslintcache
+**/*.tsbuildinfo
+.parcel-cache
+.next
+.nuxt
+coverage
+*.tgz
+
+# ---------- Go ----------
+go.work
+go.work.sum
+**/*.test
+**/*.out
+*.exe~
+*.dll
+*.dylib
+
+# ---------- OS junk ----------
+**/.DS_Store
+**/._*
+**/Thumbs.db
+**/.AppleDouble
+**/.LSOverride
+Icon
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+.apdisk

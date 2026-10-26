@@ -1,0 +1,32 @@
+# ==============================================================================
+# Usage: docker compose up -d
+# Feeds:      http://<host>:11201/   (index of all feed routes)
+# VNC viewer: http://<host>:11202/   (only with ENABLE_VNC=true; watch/click the headed Chrome)
+# ==============================================================================
+services:
+    rsshubpy:
+        image: superkeyor/rsshubpy:latest
+        container_name: rsshubpy
+        # Fixed hostname: Chrome's profile lock embeds it, so a recreated container
+        # (random hostname) would otherwise see the profile as "in use by another computer".
+        hostname: rsshubpy
+        restart: always
+        ports:
+            - "11201:5000"
+            - "11202:6080"            # noVNC viewer from the chromiumkit base image (only listens when ENABLE_VNC is "true")
+        volumes:
+            # Persist the Chrome profile (datadome / cf_clearance cookies) across container recreation.
+            - /dataguardian/nodata/rsshubpy/chromiumprofile:/app/chromiumprofile
+            # Feed cache (app/feedcache.py: last copy of every feed URL)
+            - /dataguardian/nodata/rsshubpy/cache:/app/cache
+        environment:
+            - APP_ENV=production
+            # VNC viewer: "true" serves noVNC on container port 6080 (published as 11202 above).
+            # Anyone who can reach that port can control Chrome; set VNC_PASSWORD to require a password.
+            - ENABLE_VNC=false
+            # - VNC_PASSWORD=
+            # Image defaults, listed for reference
+            # - MAX_WINDOWS=3         # Chrome windows at once (one per site)
+            # - PROFILE_MAX_MB=2000   # trim profile caches at start above this size (0 = never)
+            # - LOG_LEVEL=INFO
+        shm_size: "2gb"               # chromium crashes on the default 64MB /dev/shm

@@ -1,0 +1,20 @@
+# Only direct requirements of app/ are pinned (versions tested together with uv).
+# Transitive dependencies are resolved automatically at installation time.
+# seleniumbase brings PyAutoGUI + python-xlib on Linux (needed only by its uc_gui_* helpers).
+name: app
+channels:
+    - conda-forge
+    - nodefaults
+dependencies:
+    # mamba search "*pkg*=*=*py314*"
+    - python=3.14.9
+    - pip=26.2.1
+    - pip:
+        - beautifulsoup4==4.15.0
+        - feedparser==6.0.14
+        - flask==3.1.3
+        - gunicorn==26.2.0
+        - lxml==6.1.3
+        - opencc-python-reimplemented==0.1.7
+        - requests==2.34.2
+        - seleniumbase==4.56.4
