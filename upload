@@ -12,7 +12,7 @@ REPO_VISIBILITY="--public"
 RUN_GIT=true      # true/false: git add + commit (+ push to GitHub if not local)
 
 RUN_DOCKER=true   # true/false: docker hub build + push
-DOCKER_CHOICE="1" # ""=ask, "1"=native, "2"=buildx multi-platform, "3"=skip
+DOCKER_CHOICE="2" # ""=ask, "1"=native, "2"=buildx multi-platform, "3"=skip
 
 RUN_REMOTE=false  # true/false: rsync + remote docker build
 SSH_LOGIN=""      # e.g. 'ssh -p 2023 parallels@192.168.1.81'
