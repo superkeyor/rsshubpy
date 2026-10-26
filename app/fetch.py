@@ -19,7 +19,7 @@ from functools import cached_property
 from urllib.parse import urlparse
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, UnicodeDammit
 
 from browser import window
 
@@ -65,15 +65,21 @@ def _session(url: str) -> requests.Session:
 
 @dataclass
 class Fetched:
-    """A loaded page: html (text), url (final, after redirects), title; soup is parsed on first use."""
+    """A loaded page: html (text), url (final, after redirects); soup and title are parsed on first use."""
     html: str
     url: str
-    title: str
     parser: str = 'lxml'
+    _title: str | None = None   # known up front for browser pages
 
     @cached_property
     def soup(self) -> BeautifulSoup:
         return BeautifulSoup(self.html, self.parser)
+
+    @property
+    def title(self) -> str:
+        if self._title is None:
+            self._title = self.soup.title.get_text(strip=True) if self.soup.title else ''
+        return self._title
 
 
 def fetch(url: str, *, via: str, wait: float = 3, parser: str = 'lxml') -> Fetched:
@@ -85,15 +91,12 @@ def fetch(url: str, *, via: str, wait: float = 3, parser: str = 'lxml') -> Fetch
     if via == 'requests':
         res = _session(url).get(url, timeout=TIMEOUT)
         res.raise_for_status()
-        # decode like BeautifulSoup does on bytes (meta charset / detection), so text equals what soup parses
-        soup = BeautifulSoup(res.content, parser)
-        html = res.content.decode(soup.original_encoding or 'utf-8', errors='replace')
-        page = Fetched(html, res.url, soup.title.get_text(strip=True) if soup.title else '', parser)
-        page.soup = soup   # already parsed (cached_property)
-        return page
+        # decode with BeautifulSoup's own detector (meta charset / XML declaration / guessing), without parsing:
+        # callers that only want the text (e.g. an RSS feed for feedparser) never run an HTML parser on it
+        return Fetched(UnicodeDammit(res.content, is_html=True).unicode_markup, res.url, parser)
     if via == 'browser':
         with window(url) as page:
             page.open(url)
             page.sleep(wait)
-            return Fetched(page.html(), page.url, page.title, parser)
+            return Fetched(page.html(), page.url, parser, page.title)
     raise ValueError(f"fetch: via must be one of {VIAS}, not {via!r}")

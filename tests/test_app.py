@@ -216,6 +216,27 @@ class TestFetch(unittest.TestCase):
         with self.assertRaises(ValueError):
             fetchmod.fetch('https://example.com', via='curl')
 
+    def test_requests_decodes_without_parsing(self):
+        import warnings
+        from types import SimpleNamespace
+
+        def fake_session(body):
+            res = SimpleNamespace(content=body, url='https://x/feed', raise_for_status=lambda: None)
+            return lambda url: SimpleNamespace(get=lambda url, timeout: res)
+
+        xml = '<?xml version="1.0" encoding="utf-8"?><rss><channel><title>市场</title></channel></rss>'
+        with mock.patch.object(fetchmod, '_session', fake_session(xml.encode())), \
+                warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            page = fetchmod.fetch('https://x/feed', via='requests')
+            self.assertEqual(page.html, xml)                                  # text only: no HTML parser ran
+        self.assertEqual([w for w in caught if 'XMLParsedAsHTML' in str(w.category)], [])
+
+        gbk = '<html><head><meta charset="gbk"><title>中文标题</title></head><body>正文</body></html>'
+        with mock.patch.object(fetchmod, '_session', fake_session(gbk.encode('gbk'))):
+            page = fetchmod.fetch('https://x/page', via='requests')
+        self.assertEqual((page.title, page.soup.body.get_text()), ('中文标题', '正文'))   # meta charset honoured
+
     def test_chromium_user_agent(self):
         ua = fetchmod.chromium_user_agent('Chromium 156.0.8078.47 built on Debian GNU/Linux 13 (trixie)')
         self.assertEqual(ua, 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) '
