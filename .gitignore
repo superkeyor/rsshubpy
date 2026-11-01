@@ -1,26 +1,24 @@
-# App runtime data (bind-mounted in production, see docker-compose.yml)
-app/chromiumprofile/
-app/cache/
-# SeleniumBase writes these into its working directory (/app)
-app/downloaded_files/
-app/latest_logs/
+# .gitignore decides what is tracked:
+#     Keep secrets and generated/junk files out of the repo and git history,
+#     while tracking real source and config changes.
 
+# ====================================
 # Secrets
+# ====================================
+# ".env" without trailing / matches both .env file and .env/ folder at any depth
 .env
 .env.*
 !.env.example
+archive/
+vault/
+secret/
+secrets/
 secret.py
 pysecrets.py
-.mypy_cache/
-.dmypy.json
-dmypy.json
 
-# itslef (uncomment if needed)
-# .gitignore
-
-
-
-
+# ====================================
+# Editors / IDEs
+# ====================================
 # vscode
 .vscode/*
 !.vscode/extensions.json
@@ -28,18 +26,44 @@ dmypy.json
 !.vscode/launch.json
 !.vscode/tasks.json
 
-# Go
-*.exe~
-*.dll
-*.dylib
-*.test
-*.out
-# bin: regenerate it with go build
-# /bin/
-go.work
-go.work.sum
+# ====================================
+# OS files
+# ====================================
+# macOS specific
+.DS_Store
+# Custom folder icon file: "Icon" + a carriage return (\r); "?" matches that one char
+Icon?
+.AppleDouble
+.LSOverride
 
+# Thumbnails
+._*
+Thumbs.db
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# ====================================
+# Logs
+# ====================================
+*.log
+
+# ====================================
 # Node
+# ====================================
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -56,13 +80,43 @@ pnpm-debug.log*
 coverage/
 *.tgz
 
+# ====================================
+# Compiled artifacts (Go, Python C extensions, etc.)
+# ====================================
+*.exe
+*.exe~
+*.dll
+*.dylib
+*.so
+
+# ====================================
+# Go
+# ====================================
+*.test
+*.out
+# leading / anchors to repo root
+/bin/
+go.work
+go.work.sum
+
+# ====================================
+# Python
+# ====================================
+# Environments
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
-*.so
 
 # Distribution / packaging
 .Python
@@ -82,12 +136,6 @@ wheels/
 .installed.cfg
 *.egg
 
-# PyInstaller
-# Usually, these files are written by a python script from a template
-# before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
@@ -106,22 +154,20 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
+# Type checkers
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
 # Translations
 *.mo
 *.pot
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
 # Flask stuff:
 instance/
 .webassets-cache
-
-# Scrapy stuff:
-.scrapy
 
 # Sphinx documentation
 docs/_build/
@@ -130,72 +176,5 @@ build/docs/
 # PyBuilder
 target/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
 # Cython debug symbols
 cython_debug/
-
-
-
-
-# macOS specific
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Icon must end with two \r
-Icon
-
-
-# Thumbnails
-._*
-
-# Files that might appear in the root of a volume
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-
-# Directories potentially created on remote AFP share
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
